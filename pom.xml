@@ -4,7 +4,7 @@
 	<groupId>io.github.easy4j</groupId>
 	<artifactId>fetion4j-sdk</artifactId>
 	<description>Fetion4j Protocol SDK (Spring Boot Independent)</description>
-    <developers>
+        <developers>
         <developer>
             <name>Loong Wan</name>
             <email>hiwepy@gmail.com</email>
