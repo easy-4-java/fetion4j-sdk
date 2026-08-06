@@ -2,8 +2,6 @@
 
 [English](./README.md) | [简体中文](./README.zh-CN.md)
 
-![Java](https://img.shields.io/badge/Java-8-orange) ![License](https://img.shields.io/badge/License-Apache%202.0-blue)
-
 Fetion4j Protocol SDK (Spring Boot independent) — a Java client implementation of the Fetion (China Mobile) protocol, covering login/authentication, buddy management, instant messaging and SMS messaging over the SIPC protocol.
 
 ## Table of Contents
