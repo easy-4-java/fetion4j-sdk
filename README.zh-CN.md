@@ -2,6 +2,8 @@
 
 [English](./README.md) | [简体中文](./README.zh-CN.md)
 
+[![Java](https://img.shields.io/badge/Java-17-orange)](https://github.com/easy-4-java/fetion4j-sdk) [![License](https://img.shields.io/badge/license-Apache%202.0-green)](https://www.apache.org/licenses/LICENSE-2.0.txt)
+
 Fetion4j Protocol SDK（Spring Boot 独立）— 飞信（中国移动）协议的 Java 客户端实现，覆盖登录/认证、好友管理、即时消息与短信收发，底层基于 SIPC 协议。
 
 ## 目录
