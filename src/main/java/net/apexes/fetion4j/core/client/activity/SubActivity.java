@@ -13,8 +13,12 @@ import net.apexes.fetion4j.core.client.Controller;
 import net.apexes.fetion4j.core.client.FetionContext;
 
 /**
+ * Auxiliary activity that subscribes to PresenceV4 events on the server
+ * after a successful login.
  *
- * @author HeDYn <hedyn@foxmail.com>
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.client.Activity
  */
 public class SubActivity extends Activity {
     

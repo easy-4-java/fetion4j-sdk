@@ -20,10 +20,12 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
 /**
- * 字符串工具类
- * 
- * @author solosky <solosky772@qq.com>
+ * General-purpose string utility: HTML escaping/unescaping, tag stripping,
+ * positional formatting, URL encoding, Base64 decoding, and case manipulation.
  *
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.util.Base64
  */
 public class StringHelper {
 

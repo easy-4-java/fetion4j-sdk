@@ -97,6 +97,8 @@ import java.util.Set;
  * @see org.appframe.commons.util.XmlParseException
  *
  * @author Marc De Scheemaecker
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
  *         &lt;<A href="mailto:cyberelf@mac.com">cyberelf@mac.com</A>&gt;
  * @version $Name: RELEASE_2_2_1 $, $Revision: 1.5 $
  */

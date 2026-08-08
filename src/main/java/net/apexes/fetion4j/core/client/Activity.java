@@ -16,8 +16,13 @@ import net.apexes.fetion4j.core.sipc.ResponseMessage;
 import net.apexes.fetion4j.core.sipc.Sipc;
 
 /**
+ * Abstract base class for SIPC activities (dialogues and sub-activities).
+ * Manages call-id sequencing, request submission, and captcha verification.
  *
- * @author HeDYn<hedyn@foxmail.com>
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.client.Dialogue
+ * @see net.apexes.fetion4j.core.sipc.RequestMessage
  */
 public abstract class Activity {
 

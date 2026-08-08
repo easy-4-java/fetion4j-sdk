@@ -11,8 +11,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Abstract base class for all SIPC messages. Manages header fields,
+ * call-id, sequence number, body content, and serialisation to the
+ * SIPC wire format.
  *
- * @author HeDYn <hedyn@foxmail.com>
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.sipc.RequestMessage
+ * @see net.apexes.fetion4j.core.sipc.ResponseMessage
  */
 public abstract class SipcMessage {
     

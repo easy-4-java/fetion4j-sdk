@@ -12,14 +12,15 @@ import net.apexes.fetion4j.core.Account;
 import net.apexes.fetion4j.core.util.ConvertHelper;
 
 /**
- * SIPC注册时 SipcResponse 中的 W 头域和 SipcRequest 中的 A 头域的值。
- * 
- * 格式：
- * <pre>
- * Digest algorithm="SHA1-sess-v4",nonce="1D3C",key="C3C7",signature="84E8"
- * </pre>
+ * Represents the SIPC authentication digest exchanged during registration
+ * (W header in the response, A header in the request). Parses and generates
+ * digest strings in the format:
+ * <pre>Digest algorithm="SHA1-sess-v4",nonce="1D3C",key="C3C7",signature="84E8"</pre>
  *
- * @author HeDYn<hedyn@foxmail.com>
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.client.auth.AuthGeneratorV4
+ * @see net.apexes.fetion4j.core.client.auth.PasswordEncrypterV4
  */
 public class AuthDigest {
 

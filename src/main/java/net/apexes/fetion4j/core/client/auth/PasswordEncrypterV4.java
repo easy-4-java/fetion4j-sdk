@@ -13,8 +13,12 @@ import net.apexes.fetion4j.core.util.ConvertHelper;
 import net.apexes.fetion4j.core.util.DigestHelper;
 
 /**
- *  密码加密工具
- *  同样也参照了reflector反编译的飞信源代码以及用HaozesFx测试结果
+ * Password encryption utility for the Fetion V4 protocol. Produces SHA-1
+ * hashes of the password combined with the Fetion domain or user ID.
+ *
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.util.DigestHelper
  */
 public class PasswordEncrypterV4 {
 

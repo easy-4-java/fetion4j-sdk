@@ -7,8 +7,12 @@
 package net.apexes.fetion4j.core.client.activity;
 
 /**
+ * Constants holding XML template strings for system-config requests,
+ * user authentication, buddy addition, and buddy deletion.
  *
- * @author HeDYn<hedyn@foxmail.com>
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.SystemConfig
  */
 public interface Template {
     
