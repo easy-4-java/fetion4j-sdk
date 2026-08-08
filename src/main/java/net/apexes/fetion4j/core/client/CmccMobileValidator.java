@@ -12,9 +12,12 @@ import net.apexes.fetion4j.core.util.XmlElement;
 import net.apexes.fetion4j.core.util.XmlElementHelper;
 
 /**
- * 用于验证指定的手机号码是否是中国移动手机号码
- * 
- * @author HeDYn <hedyn@foxmail.com>
+ * Validates whether a given mobile number belongs to the China Mobile (CMCC)
+ * network by checking against known number-range definitions loaded from XML.
+ *
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.util.XmlElement
  */
 public class CmccMobileValidator {
     

@@ -24,8 +24,14 @@ import net.apexes.fetion4j.core.util.ConvertHelper;
 import net.apexes.fetion4j.core.util.DigestHelper;
 
 /**
- *  验证信息生成类
- *  参照了reflector反编译的飞信源代码以及用HaozesFx测试结果^_^!我折腾了一个下午才搞出来。。
+ * Generates the RSA-encrypted authentication response for SIPC V4 login.
+ * Combines the encrypted password, server nonce, and AES key into a single
+ * payload encrypted with the server's RSA public key.
+ *
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.client.auth.AuthDigest
+ * @see net.apexes.fetion4j.core.util.ConvertHelper
  */
 public class AuthGeneratorV4 {
 

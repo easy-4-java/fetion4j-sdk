@@ -16,8 +16,14 @@ import net.apexes.fetion4j.core.util.XmlElement;
 import net.apexes.fetion4j.core.util.XmlElementHelper;
 
 /**
+ * Represents the Fetion system configuration retrieved from the server.
+ * Tracks version numbers for each configuration section and supports
+ * incremental updates.
  *
- * @author HeDYn <hedyn@foxmail.com>
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.util.XmlElement
+ * @see net.apexes.fetion4j.core.util.XmlElementHelper
  */
 public final class SystemConfig {
     

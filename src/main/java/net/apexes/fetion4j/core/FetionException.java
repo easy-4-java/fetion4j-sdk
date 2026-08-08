@@ -7,9 +7,12 @@
 package net.apexes.fetion4j.core;
 
 /**
- * 飞信异常，是所有飞信异常的基类
- * 
- * @author HeDYn<hedyn@foxmail.com>
+ * Base checked exception for all Fetion SDK errors. Carries an optional
+ * cause chain for diagnostic purposes.
+ *
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.client.transfer.TransferException
  */
 public class FetionException extends Exception {
     private static final long serialVersionUID = 1L;

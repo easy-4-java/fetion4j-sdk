@@ -8,10 +8,12 @@
 package net.apexes.fetion4j.core.sipc;
 
 /**
- * 消息头域。格式类似：
- * <div>Q: 1 R</div>
- * 
- * @author HeDYn <hedyn@foxmail.com>
+ * Represents a single SIPC message header field in the format {@code Name: Value}.
+ * Two fields are considered equal if they share the same name.
+ *
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.sipc.SipcMessage
  */
 class Field {
     

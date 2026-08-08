@@ -9,8 +9,13 @@ package net.apexes.fetion4j.core;
 import net.apexes.fetion4j.core.user.Buddy;
 
 /**
+ * High-level console interface returned after a successful login. Provides
+ * operations for buddy management and message sending.
  *
- * @author HeDYn <hedyn@foxmail.com>
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.Fetion
+ * @see net.apexes.fetion4j.core.Result
  */
 public interface FetionConsole {
     

@@ -13,8 +13,13 @@ import net.apexes.fetion4j.core.client.FetionContext;
 import net.apexes.fetion4j.core.sipc.SipcMessage;
 
 /**
+ * Proxy {@link Transfer} implementation that automatically selects the
+ * primary or backup SIPC proxy server from the system configuration.
  *
- * @author HeDYn <hedyn@foxmail.com>
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.client.transfer.TcpTransfer
+ * @see net.apexes.fetion4j.core.SystemConfig
  */
 public class TransferProxy implements Transfer {
 
