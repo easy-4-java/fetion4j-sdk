@@ -7,9 +7,13 @@
 package net.apexes.fetion4j.core.user;
 
 /**
- * 飞信用户。
- * 
- * @author HeDYn<hedyn@foxmail.com>
+ * Base model class representing a Fetion user, identified by a numeric
+ * user ID, a SIP URI, and a display name. Implements equality based on userId.
+ *
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.user.Personal
+ * @see net.apexes.fetion4j.core.user.Buddy
  */
 public class User implements java.io.Serializable {
     

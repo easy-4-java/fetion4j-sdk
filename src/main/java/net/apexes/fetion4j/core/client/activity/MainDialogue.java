@@ -23,9 +23,13 @@ import net.apexes.fetion4j.core.sipc.SipcMessage;
 import net.apexes.fetion4j.core.util.XmlElement;
 
 /**
+ * Primary SIPC dialogue responsible for login, logout, keep-alive heartbeat,
+ * and dispatching server-push notifications (presence changes, buddy sync).
  *
- *
- * @author HeDYn<hedyn@foxmail.com>
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.client.Dialogue
+ * @see net.apexes.fetion4j.core.client.activity.MessageHelper
  */
 public class MainDialogue extends Dialogue {
 

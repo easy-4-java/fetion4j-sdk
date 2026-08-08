@@ -3,8 +3,12 @@ package net.apexes.fetion4j.core;
 import net.apexes.fetion4j.core.sipc.SipcMessage;
 
 /**
+ * Pluggable logging interface for SIPC message traffic and SDK diagnostics.
+ * Implementations may route output to SLF4J, stdout, or any other backend.
  *
- * @author HeDYn<hedyn@foxmail.com>
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.sipc.SipcMessage
  */
 public interface LogHandler {
     

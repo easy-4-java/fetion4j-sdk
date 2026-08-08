@@ -7,8 +7,13 @@
 package net.apexes.fetion4j.core;
 
 /**
+ * Immutable value object representing the outcome of a Fetion operation,
+ * carrying an HTTP-style status code, status message, success/failure type,
+ * and a human-readable description.
  *
- * @author HeDYn<hedyn@foxmail.com>
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.Result.Type
  */
 public class Result {
     

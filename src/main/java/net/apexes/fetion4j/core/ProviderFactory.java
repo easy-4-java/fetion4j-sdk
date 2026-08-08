@@ -7,8 +7,12 @@
 package net.apexes.fetion4j.core;
 
 /**
+ * Factory interface for creating {@link Provider} instances keyed by mobile number.
  *
- * @author HeDYn <hedyn@foxmail.com>
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.Provider
+ * @see net.apexes.fetion4j.core.client.SimpleProviderFactory
  */
 public interface ProviderFactory {
     

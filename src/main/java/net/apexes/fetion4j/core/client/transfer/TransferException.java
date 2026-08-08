@@ -7,8 +7,11 @@
 package net.apexes.fetion4j.core.client.transfer;
 
 /**
+ * Checked exception thrown when a network transport operation fails.
  *
- * @author HeDYn <hedyn@foxmail.com>
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.client.transfer.Transfer
  */
 public class TransferException extends Exception {
 

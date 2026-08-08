@@ -13,8 +13,14 @@ import net.apexes.fetion4j.core.util.StringHelper;
 import net.apexes.fetion4j.core.util.XmlElement;
 
 /**
+ * Reflection-based helper that converts between {@link XmlElement} and
+ * user-model objects ({@link User}, {@link Buddy}, etc.) using getter/setter
+ * introspection.
  *
- * @author HeDYn <hedyn@foxmail.com>
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.user.User
+ * @see net.apexes.fetion4j.core.util.XmlElement
  */
 public final class UserHelper {
     

@@ -10,8 +10,12 @@ import net.apexes.fetion4j.core.Provider;
 import net.apexes.fetion4j.core.ProviderFactory;
 
 /**
+ * Default {@link ProviderFactory} that creates {@link SimpleProvider} instances.
  *
- * @author HeDYn <hedyn@foxmail.com>
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.ProviderFactory
+ * @see net.apexes.fetion4j.core.client.SimpleProvider
  */
 public class SimpleProviderFactory implements ProviderFactory {
     

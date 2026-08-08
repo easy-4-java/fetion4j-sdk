@@ -37,6 +37,8 @@ package net.apexes.fetion4j.core.util;
  * @see org.appframe.commons.util.XMLElement
  *
  * @author Marc De Scheemaecker
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
  * @version $Name: RELEASE_2_2_1 $, $Revision: 1.5 $
  */
 public class XmlParseException extends RuntimeException {

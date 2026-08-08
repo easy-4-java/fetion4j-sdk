@@ -21,8 +21,15 @@ import net.apexes.fetion4j.core.util.XmlElement;
 import net.apexes.fetion4j.core.util.XmlElementHelper;
 
 /**
+ * Aggregates all user-related data: personal profile, contact list (buddy
+ * groups, buddies, blacklist), and SMS quota. Supports incremental updates
+ * triggered by server events.
  *
- * @author HeDYn <hedyn@foxmail.com>
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.user.Personal
+ * @see net.apexes.fetion4j.core.user.Contact
+ * @see net.apexes.fetion4j.core.Quota
  */
 public class UserInfo {
 

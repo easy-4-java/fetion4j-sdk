@@ -15,8 +15,13 @@ import net.apexes.fetion4j.core.sipc.ResponseMessage;
 import net.apexes.fetion4j.core.util.XmlElement;
 
 /**
+ * Default implementation of {@link AuthFeedback} that coordinates captcha
+ * image retrieval and user input via a {@link java.util.concurrent.CountDownLatch}.
  *
- * @author HeDYn <hedyn@foxmail.com>
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.AuthFeedback
+ * @see net.apexes.fetion4j.core.Captcha
  */
 public class AuthFeedbackImpl implements AuthFeedback {
     

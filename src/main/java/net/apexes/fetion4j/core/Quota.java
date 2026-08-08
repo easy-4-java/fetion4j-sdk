@@ -10,8 +10,12 @@ import net.apexes.fetion4j.core.client.Controller;
 import net.apexes.fetion4j.core.util.XmlElement;
 
 /**
+ * Holds quota and rate-limit information for a Fetion account, including
+ * maximum buddy count and daily/monthly SMS sending limits.
  *
- * @author HeDYn <hedyn@foxmail.com>
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.UserInfo
  */
 public class Quota {
 

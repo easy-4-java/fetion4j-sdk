@@ -17,8 +17,14 @@ import net.apexes.fetion4j.core.sipc.SipcMessageReader;
 import net.apexes.fetion4j.core.sipc.SipcMessageWriter;
 
 /**
+ * TCP-based {@link Transfer} implementation that opens a raw socket to the
+ * SIPC server and reads/writes {@link SipcMessage} objects via
+ * {@link SipcMessageReader} and {@link SipcMessageWriter}.
  *
- * @author HeDYn<hedyn@foxmail.com>
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.client.transfer.Transfer
+ * @see net.apexes.fetion4j.core.sipc.SipcMessageReader
  */
 public class TcpTransfer implements Transfer {
 
