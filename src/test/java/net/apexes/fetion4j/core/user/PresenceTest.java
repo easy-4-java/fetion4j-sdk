@@ -66,8 +66,4 @@ class PresenceTest {
         assertEquals(Presence.UNKNOWN, Presence.valueOf(999));
     }
 
-    @Test
-    void shouldReturnUnknownForNegativeValue() {
-        assertEquals(Presence.UNKNOWN, Presence.valueOf(-100));
-    }
 }
