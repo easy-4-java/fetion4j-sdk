@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserInfo.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">io.github.easy4j:fetion4j-sdk</a> &gt; <a href="index.source.html" class="el_package">net.apexes.fetion4j.core</a> &gt; <span class="el_source">UserInfo.java</span></div><h1>UserInfo.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (C) 2013, Apexes Network Technology. All rights reserved.
+ *
+ *       http://www.apexes.net
+ *
+ */
+package net.apexes.fetion4j.core;
+
+import java.text.ParseException;
+import java.util.LinkedHashMap;
+
+import net.apexes.fetion4j.core.client.Controller;
+import net.apexes.fetion4j.core.user.Buddy;
+import net.apexes.fetion4j.core.user.BuddyGroup;
+import net.apexes.fetion4j.core.user.Contact;
+import net.apexes.fetion4j.core.user.Personal;
+import net.apexes.fetion4j.core.user.Presence;
+import net.apexes.fetion4j.core.user.Relation;
+import net.apexes.fetion4j.core.user.User;
+import net.apexes.fetion4j.core.util.XmlElement;
+import net.apexes.fetion4j.core.util.XmlElementHelper;
+
+/**
+ * Aggregates all user-related data: personal profile, contact list (buddy
+ * groups, buddies, blacklist), and SMS quota. Supports incremental updates
+ * triggered by server events.
+ *
+ * @author &lt;a href=&quot;https://github.com/loong10k&quot;&gt;@Loong Wan&lt;/a&gt;
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.user.Personal
+ * @see net.apexes.fetion4j.core.user.Contact
+ * @see net.apexes.fetion4j.core.Quota
+ */
+public class UserInfo {
+
+    /**
+     * 个人信息
+     */
+    private Personal personal;
+    /**
+     * 通讯录
+     */
+    private Contact contact;
+    /**
+     * 配额情况
+     */
+    private Quota quota;
+    /**
+     *
+     */
+    private LinkedHashMap&lt;String, XmlElement&gt; xmlMap;
+
+<span class="fc" id="L53">    public UserInfo() {</span>
+<span class="fc" id="L54">        quota = new Quota();</span>
+<span class="fc" id="L55">        xmlMap = new LinkedHashMap&lt;String, XmlElement&gt;();</span>
+<span class="fc" id="L56">    }</span>
+
+    public Personal getPersonal() {
+<span class="fc" id="L59">        return personal;</span>
+    }
+
+    public void setPersonal(Personal personal) {
+<span class="fc" id="L63">        this.personal = personal;</span>
+<span class="fc" id="L64">    }</span>
+
+    public Contact getContact() {
+<span class="fc" id="L67">        return contact;</span>
+    }
+
+    public void setContact(Contact contact) {
+<span class="fc" id="L71">        this.contact = contact;</span>
+<span class="fc" id="L72">    }</span>
+
+    public Quota getQuota() {
+<span class="fc" id="L75">        return quota;</span>
+    }
+
+    public void setQuota(Quota quota) {
+<span class="fc" id="L79">        this.quota = quota;</span>
+<span class="fc" id="L80">    }</span>
+
+    public String getPersonalVersion() {
+<span class="fc bfc" id="L83" title="All 2 branches covered.">        return personal == null ? &quot;0&quot; : personal.getVersion();</span>
+    }
+
+    public String getContactVersion() {
+<span class="fc bfc" id="L87" title="All 2 branches covered.">        return contact == null ? &quot;0&quot; : contact.getVersion();</span>
+    }
+
+    /**
+     * 
+     * @param controller
+     * @param xml
+     * @throws ParseException
+     * @throws Exception 
+     */
+    public void updateOnLogined(Controller controller, XmlElement xml) 
+            throws ParseException, Exception {
+<span class="fc bfc" id="L99" title="All 2 branches covered.">        for (XmlElement el : xml.getChildren()) {</span>
+<span class="fc" id="L100">            String elName = el.getName();</span>
+<span class="fc bfc" id="L101" title="All 2 branches covered.">            if (&quot;personal&quot;.equals(elName)) {</span>
+<span class="fc" id="L102">                String version = el.getStringAttribute(&quot;version&quot;);</span>
+<span class="fc bfc" id="L103" title="All 2 branches covered.">                if (!getPersonalVersion().equals(version)) {</span>
+<span class="fc" id="L104">                    personal = toPersonal(el);</span>
+                }
+<span class="fc bfc" id="L106" title="All 2 branches covered.">            } else if (&quot;contact-list&quot;.equals(elName)) {</span>
+<span class="fc" id="L107">                String version = el.getStringAttribute(&quot;version&quot;);</span>
+<span class="pc bpc" id="L108" title="1 of 2 branches missed.">                if (!getContactVersion().equals(version)) {</span>
+<span class="fc" id="L109">                    contact = toContact(el);</span>
+                }
+<span class="fc bfc" id="L111" title="All 2 branches covered.">            } else if (&quot;quotas&quot;.equals(elName)) {</span>
+<span class="fc" id="L112">                quota.update(controller, el);</span>
+            } else {
+<span class="fc" id="L114">                xmlMap.put(elName, el);</span>
+            }
+<span class="fc" id="L116">        }</span>
+<span class="fc" id="L117">    }</span>
+
+    /**
+     * 
+     * @param controller
+     * @param xml
+     * @throws Exception 
+     */
+    public void updateOnPresenceChanged(Controller controller, XmlElement xml) throws Exception {
+        // &lt;events&gt;&lt;event type=&quot;PresenceChanged&quot;&gt;&lt;contacts&gt;
+        // &lt;c id=&quot;123456789&quot;&gt;&lt;p v=&quot;0&quot; sid=&quot;987654321&quot; 
+        // su=&quot;sip:987654321@fetion.com.cn;p=6087&quot; 
+        // m=&quot;13800138000&quot; c=&quot;CMCC&quot; cs=&quot;0&quot; s=&quot;1&quot; l=&quot;0&quot; svc=&quot;99&quot; 
+        // n=&quot;13800138000&quot; i=&quot;&quot; p=&quot;0&quot; sms=&quot;0.0:0:0&quot; sp=&quot;0&quot; sh=&quot;0&quot;/&gt;
+        // &lt;pr di=&quot;&quot; b=&quot;0&quot; d=&quot;&quot; dt=&quot;&quot; dc=&quot;0&quot;&gt;&lt;/pr&gt;
+        // &lt;/c&gt;&lt;/contacts&gt;&lt;/event&gt;&lt;/events&gt;
+<span class="fc" id="L133">        xml = XmlElementHelper.getNode(xml, &quot;/events/event/contacts&quot;);</span>
+<span class="fc bfc" id="L134" title="All 2 branches covered.">        for (XmlElement el : xml.getChildren(&quot;c&quot;)) {</span>
+<span class="fc" id="L135">            int userId = el.getIntAttribute(&quot;id&quot;);</span>
+<span class="fc" id="L136">            Personal user = contact.findBuddy(userId);</span>
+<span class="fc bfc" id="L137" title="All 2 branches covered.">            if (user == null) {</span>
+<span class="fc bfc" id="L138" title="All 2 branches covered.">                if (userId == personal.getUserId()) {</span>
+<span class="fc" id="L139">                    user = personal;</span>
+                } else {
+                    break;
+                }
+            }
+<span class="fc" id="L144">            XmlElement pEl = el.getChild(&quot;p&quot;);</span>
+<span class="pc bpc" id="L145" title="1 of 2 branches missed.">            if (pEl != null) {</span>
+<span class="fc bfc" id="L146" title="All 2 branches covered.">                if (user instanceof Buddy) {</span>
+<span class="fc" id="L147">                    user.setVersion(pEl.getStringAttribute(&quot;v&quot;, user.getVersion()));</span>
+                }
+<span class="fc" id="L149">                user.setSid(pEl.getStringAttribute(&quot;sid&quot;, user.getSid()));</span>
+<span class="fc" id="L150">                user.setUri(pEl.getStringAttribute(&quot;su&quot;, user.getUri()));</span>
+                // 不直接取Long型属性，而是先转成字符串，防止 m=&quot;&quot; 这种情况引起异常
+<span class="fc" id="L152">                String m = pEl.getStringAttribute(&quot;m&quot;);</span>
+<span class="pc bpc" id="L153" title="1 of 4 branches missed.">                if (m != null &amp;&amp; !m.isEmpty()) {</span>
+<span class="fc" id="L154">                    user.setMobileNo(Long.valueOf(m));</span>
+                }
+<span class="fc" id="L156">                user.setCarrier(pEl.getStringAttribute(&quot;c&quot;, user.getCarrier()));</span>
+<span class="fc" id="L157">                user.setCarrierStatus(pEl.getStringAttribute(&quot;cs&quot;, user.getCarrierStatus()));</span>
+<span class="fc" id="L158">                user.setNickname(pEl.getStringAttribute(&quot;n&quot;, user.getNickname()));</span>
+<span class="fc" id="L159">                user.setImpresa(pEl.getStringAttribute(&quot;i&quot;, user.getImpresa()));</span>
+<span class="fc" id="L160">                user.setSmsOnlineStatus(pEl.getStringAttribute(&quot;sms&quot;, user.getSmsOnlineStatus()));</span>
+            }
+<span class="fc" id="L162">            XmlElement prEl = el.getChild(&quot;pr&quot;);</span>
+<span class="pc bpc" id="L163" title="1 of 2 branches missed.">            if (prEl != null) {</span>
+<span class="fc" id="L164">                user.setPresence(Presence.valueOf(prEl.getIntAttribute(&quot;b&quot;)));</span>
+            }
+<span class="fc" id="L166">            controller.fireChangedUser(user);</span>
+<span class="fc" id="L167">        }</span>
+<span class="fc" id="L168">    }</span>
+    
+    public void updateOnSyncUserInfoChanged(Controller controller, XmlElement xml) throws Exception {
+        // 删除好友:
+        //&lt;events&gt;&lt;event type=&quot;SyncUserInfo&quot;&gt;&lt;user-info&gt;
+        //&lt;contact-list version=&quot;407799031&quot;&gt;
+        //&lt;buddies&gt;&lt;buddy action=&quot;remove&quot; user-id=&quot;123456789&quot; /&gt;&lt;/buddies&gt;
+        //&lt;/contact-list&gt;&lt;/user-info&gt;&lt;/event&gt;&lt;/events&gt;
+        // 添加好友：
+        //&lt;events&gt;&lt;event type=&quot;SyncUserInfo&quot;&gt;&lt;user-info&gt;
+        //&lt;contact-list version=&quot;407799087&quot;&gt;&lt;buddies&gt;
+        //&lt;buddy action=&quot;remove&quot; user-id=&quot;123456789&quot;/&gt;
+        //&lt;buddy action=&quot;add&quot; user-id=&quot;123456789&quot; uri=&quot;sip:987654321@fetion.com.cn;p=277&quot;
+        // relation-status=&quot;1&quot; local-name=&quot;备注名称&quot; buddy-lists=&quot;&quot; online-notify=&quot;0&quot; 
+        // permission-values=&quot;identity=1;&quot; /&gt;
+        //&lt;buddy action=&quot;update&quot; user-id=&quot;123456789&quot; relation-status=&quot;1&quot;/&gt;
+        //&lt;/buddies&gt;&lt;/contact-list&gt;&lt;/user-info&gt;&lt;/event&gt;&lt;/events&gt;
+<span class="fc" id="L185">        xml = XmlElementHelper.getNode(xml, &quot;/events/event/user-info/contact-list&quot;);</span>
+<span class="pc bpc" id="L186" title="1 of 2 branches missed.">        if (xml != null) {</span>
+<span class="fc" id="L187">            String contactVersion = xml.getStringAttribute(&quot;version&quot;);</span>
+<span class="fc" id="L188">            xml = xml.getChild(&quot;buddies&quot;);</span>
+<span class="fc bfc" id="L189" title="All 2 branches covered.">            for (XmlElement el : xml.getChildren(&quot;buddy&quot;)) {</span>
+<span class="fc" id="L190">                String action = el.getStringAttribute(&quot;action&quot;);</span>
+<span class="pc bpc" id="L191" title="1 of 2 branches missed.">                if (&quot;update&quot;.equals(action)) {</span>
+<span class="fc" id="L192">                    int userId = el.getIntAttribute(&quot;user-id&quot;);</span>
+<span class="fc" id="L193">                    Buddy buddy = contact.findBuddy(userId);</span>
+<span class="fc" id="L194">                    int r = el.getIntAttribute(&quot;relation-status&quot;);</span>
+<span class="fc" id="L195">                    Relation relation = Relation.valueOf(r);</span>
+<span class="fc" id="L196">                    buddy.setRelation(relation);</span>
+<span class="fc" id="L197">                    controller.fireChangedBuddy(buddy, contactVersion);</span>
+                }
+<span class="fc" id="L199">            }</span>
+        }
+<span class="fc" id="L201">    }</span>
+    
+    @Override
+    public String toString() {
+<span class="fc" id="L205">        StringBuilder buf = new StringBuilder();</span>
+<span class="fc" id="L206">        buf.append(&quot;UserInfo\r\n&quot;);</span>
+<span class="fc" id="L207">        buf.append(&quot;个人信息 version=&quot;);</span>
+<span class="fc" id="L208">        buf.append(getPersonalVersion());</span>
+<span class="fc" id="L209">        buf.append(&quot;\r\n&quot;);</span>
+<span class="fc" id="L210">        buf.append(personal);</span>
+<span class="fc" id="L211">        buf.append(contact);</span>
+<span class="fc" id="L212">        buf.append(&quot;\r\n&quot;);</span>
+<span class="fc" id="L213">        buf.append(quota);</span>
+<span class="fc" id="L214">        return buf.toString();</span>
+    }
+    
+    /**
+     * 
+     * @param xml
+     * @return
+     * @throws ParseException 
+     */
+    private static Personal toPersonal(XmlElement xml) throws ParseException {
+<span class="fc" id="L224">        Personal personal = new Personal();</span>
+<span class="fc" id="L225">        String version = xml.getStringAttribute(&quot;version&quot;);</span>
+<span class="fc" id="L226">        int userId = xml.getIntAttribute(&quot;user-id&quot;);</span>
+<span class="fc" id="L227">        String uri = xml.getStringAttribute(&quot;uri&quot;);</span>
+<span class="fc" id="L228">        String name = xml.getStringAttribute(&quot;name&quot;);</span>
+<span class="pc bpc" id="L229" title="3 of 6 branches missed.">        if (version == null || userId == 0 || uri == null) {</span>
+<span class="nc" id="L230">            throw new ParseException(xml.toString(), 0);</span>
+        }
+<span class="fc" id="L232">        personal.setUserId(userId);</span>
+<span class="fc" id="L233">        personal.setUri(uri);</span>
+<span class="fc" id="L234">        personal.setName(name);</span>
+<span class="fc" id="L235">        personal.setVersion(version);</span>
+<span class="fc" id="L236">        personal.setSid(xml.getStringAttribute(&quot;sid&quot;, personal.getSid()));</span>
+<span class="fc" id="L237">        String m = xml.getStringAttribute(&quot;mobile-no&quot;);</span>
+<span class="pc bpc" id="L238" title="2 of 4 branches missed.">        if (m != null &amp;&amp; !m.isEmpty()) {</span>
+<span class="fc" id="L239">            personal.setMobileNo(Long.valueOf(m));</span>
+        }
+<span class="fc" id="L241">        personal.setNickname(xml.getStringAttribute(&quot;nickname&quot;, personal.getNickname()));</span>
+<span class="fc" id="L242">        personal.setImpresa(xml.getStringAttribute(&quot;impresa&quot;, personal.getImpresa()));</span>
+<span class="fc" id="L243">        return personal;</span>
+    }
+
+    /**
+     * 
+     * @param xml
+     * @return
+     * @throws ParseException 
+     */
+    private static Contact toContact(XmlElement xml) throws ParseException {
+<span class="fc" id="L253">        String version = xml.getStringAttribute(&quot;version&quot;);</span>
+<span class="pc bpc" id="L254" title="1 of 2 branches missed.">        if (version == null) {</span>
+<span class="nc" id="L255">            throw new ParseException(xml.toString(), 0);</span>
+        }
+<span class="fc" id="L257">        Contact contact = new Contact(version);</span>
+<span class="fc bfc" id="L258" title="All 2 branches covered.">        for (XmlElement el : xml.getChildren()) {</span>
+<span class="fc" id="L259">            String elName = el.getName();</span>
+<span class="fc bfc" id="L260" title="All 2 branches covered.">            if (&quot;buddy-lists&quot;.equals(elName)) {</span>
+                // &lt;buddy-list id=&quot;1&quot; name=&quot;我的好友&quot;/&gt;
+<span class="fc bfc" id="L262" title="All 2 branches covered.">                for (XmlElement el0 : el.getChildren(&quot;buddy-list&quot;)) {</span>
+<span class="fc" id="L263">                    int id = el0.getIntAttribute(&quot;id&quot;);</span>
+<span class="fc" id="L264">                    String name = el0.getStringAttribute(&quot;name&quot;);</span>
+<span class="fc" id="L265">                    contact.addBuddyGroup(new BuddyGroup(id, name));</span>
+<span class="fc" id="L266">                }</span>
+<span class="pc bpc" id="L267" title="1 of 2 branches missed.">            } else if (&quot;buddies&quot;.equals(elName)) {</span>
+                // &lt;b i=&quot;123456789&quot; u=&quot;sip:987654321@fetion.com.cn;p=1335&quot; n=&quot;名称&quot; l=&quot;2&quot; f=&quot;0&quot; r=&quot;1&quot; o=&quot;0&quot; p=&quot;identity=1;&quot;/&gt;
+<span class="fc bfc" id="L269" title="All 2 branches covered.">                for (XmlElement el0 : el.getChildren(&quot;b&quot;)) {</span>
+<span class="fc" id="L270">                    int userId = el0.getIntAttribute(&quot;i&quot;);</span>
+<span class="fc" id="L271">                    String uri = el0.getStringAttribute(&quot;u&quot;);</span>
+<span class="fc" id="L272">                    String name = el0.getStringAttribute(&quot;n&quot;);</span>
+<span class="fc" id="L273">                    int r = el0.getIntAttribute(&quot;r&quot;);</span>
+<span class="fc" id="L274">                    Relation relation = Relation.valueOf(r);</span>
+<span class="fc" id="L275">                    Buddy buddy = new Buddy(userId, uri, name, relation);</span>
+<span class="fc" id="L276">                    contact.addBuddy(buddy);</span>
+<span class="fc" id="L277">                }</span>
+<span class="nc bnc" id="L278" title="All 2 branches missed.">            } else if (&quot;blacklist&quot;.equals(elName)) {</span>
+                // &lt;k i=&quot;123456789&quot; u=&quot;sip:987654321@fetion.com.cn;p=3423&quot; n=&quot;&quot;/&gt;
+<span class="nc bnc" id="L280" title="All 2 branches missed.">                for (XmlElement el0 : el.getChildren(&quot;k&quot;)) {</span>
+<span class="nc" id="L281">                    int userId = el0.getIntAttribute(&quot;i&quot;);</span>
+<span class="nc" id="L282">                    String uri = el0.getStringAttribute(&quot;u&quot;);</span>
+<span class="nc" id="L283">                    String name = el0.getStringAttribute(&quot;n&quot;);</span>
+<span class="nc" id="L284">                    contact.addBlacklist(new User(userId, uri, name));</span>
+<span class="nc" id="L285">                }</span>
+            }
+<span class="fc" id="L287">        }</span>
+<span class="fc" id="L288">        return contact;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

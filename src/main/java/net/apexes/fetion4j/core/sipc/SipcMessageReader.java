@@ -12,8 +12,14 @@ import java.io.InputStream;
 import java.text.ParseException;
 
 /**
+ * Reads and parses SIPC messages from an {@link java.io.InputStream},
+ * constructing either {@link RequestMessage} or {@link ResponseMessage}
+ * objects depending on the headline format.
  *
- * @author HeDYn <hedyn@foxmail.com>
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.sipc.SipcMessageWriter
+ * @see net.apexes.fetion4j.core.sipc.SipcMessage
  */
 public class SipcMessageReader {
 

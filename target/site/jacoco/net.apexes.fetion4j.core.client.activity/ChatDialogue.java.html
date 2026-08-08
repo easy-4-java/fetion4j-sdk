@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ChatDialogue.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">io.github.easy4j:fetion4j-sdk</a> &gt; <a href="index.source.html" class="el_package">net.apexes.fetion4j.core.client.activity</a> &gt; <span class="el_source">ChatDialogue.java</span></div><h1>ChatDialogue.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (C) 2012, Apexes Network Technology. All rights reserved.
+ * 
+ *       http://www.apexes.net
+ * 
+ */
+package net.apexes.fetion4j.core.client.activity;
+
+import net.apexes.fetion4j.core.FetionException;
+import net.apexes.fetion4j.core.Result;
+import net.apexes.fetion4j.core.client.ClientHelper;
+import net.apexes.fetion4j.core.client.Controller;
+import net.apexes.fetion4j.core.client.Dialogue;
+import net.apexes.fetion4j.core.client.FetionContext;
+import net.apexes.fetion4j.core.sipc.RequestMessage;
+import net.apexes.fetion4j.core.sipc.ResponseMessage;
+import net.apexes.fetion4j.core.sipc.Sipc;
+import net.apexes.fetion4j.core.sipc.SipcMessage;
+import net.apexes.fetion4j.core.user.Buddy;
+import net.apexes.fetion4j.core.util.XmlElement;
+
+/**
+ * SIPC dialogue for sending instant messages and SMS to a specific buddy.
+ * Automatically selects SMS delivery when the buddy's URI is mobile-based.
+ *
+ * @author &lt;a href=&quot;https://github.com/loong10k&quot;&gt;@Loong Wan&lt;/a&gt;
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.client.Dialogue
+ * @see net.apexes.fetion4j.core.user.Buddy
+ */
+public class ChatDialogue extends Dialogue {
+
+    private Buddy buddy;
+
+    public ChatDialogue(FetionContext context, Controller controller, int callId, Buddy buddy) {
+<span class="fc" id="L36">        super(context, controller, callId);</span>
+<span class="fc" id="L37">        this.buddy = buddy;</span>
+<span class="fc" id="L38">    }</span>
+
+    @Override
+    public void receive(SipcMessage message) {
+<span class="fc" id="L42">    }</span>
+
+    public Buddy getBuddy() {
+<span class="fc" id="L45">        return buddy;</span>
+    }
+
+    public Result sendMessage(String msg) throws FetionException {
+<span class="nc bnc" id="L49" title="All 2 branches missed.">        if (ClientHelper.isMobileUri(buddy.getUri())) {</span>
+<span class="nc" id="L50">            return sendSMSMessage(msg);</span>
+        }
+<span class="nc" id="L52">        return sendChatMessage(msg);</span>
+    }
+
+    public Result sendSMSMessage(String msg) throws FetionException {
+<span class="nc" id="L56">        return submitRequest(MessageHelper.createMsgRequest(buddy, msg, true));</span>
+    }
+
+    public Result sendChatMessage(String msg) throws FetionException {
+<span class="nc" id="L60">        return submitRequest(MessageHelper.createMsgRequest(buddy, msg, false));</span>
+    }
+
+    /**
+     * 
+     *
+     * @param request
+     * @return
+     * @throws FetionException
+     */
+    private Result submitRequest(RequestMessage request) throws FetionException {
+<span class="nc" id="L71">        ResponseMessage response = submit(request);</span>
+<span class="nc" id="L72">        int status = response.getStatus();</span>
+<span class="nc bnc" id="L73" title="All 3 branches missed.">        switch (status) {</span>
+            case Sipc.STATUS_ACTION_OK:
+<span class="nc" id="L75">                return new Result(status,</span>
+<span class="nc" id="L76">                        response.getStatusMessage(),</span>
+                        Result.Type.SUCCESS, &quot;发送成功。&quot;);
+                
+            case Sipc.STATUS_SEND_SMS_OK:
+<span class="nc" id="L80">                updateQuotaFrequency(response.getBody());</span>
+<span class="nc" id="L81">                return new Result(status,</span>
+<span class="nc" id="L82">                        response.getStatusMessage(),</span>
+                        Result.Type.SUCCESS, &quot;已发送到对方手机。&quot;);
+            default:
+<span class="nc" id="L85">                return new Result(status,</span>
+<span class="nc" id="L86">                        response.getStatusMessage(),</span>
+                        Result.Type.FAILURE, &quot;发送失败。&quot;);
+        }
+    }
+    
+    private void updateQuotaFrequency(String body) {
+        //&lt;results&gt;&lt;quota-frequency&gt;
+        //&lt;frequency name=&quot;send-sms&quot; day-count=&quot;5&quot; month-count=&quot;17&quot;/&gt;
+        //&lt;/quota-frequency&gt;&lt;/results&gt;
+        try {
+<span class="nc" id="L96">            XmlElement xml = new XmlElement();</span>
+<span class="nc" id="L97">            xml.parseString(body);</span>
+<span class="nc" id="L98">            getContext().getUserInfo().getQuota().update(getController(), xml);</span>
+<span class="nc" id="L99">        } catch (Exception ex) {</span>
+<span class="nc" id="L100">            getContext().getLogHandler().error(ChatDialogue.class, body, ex);</span>
+<span class="nc" id="L101">        }</span>
+<span class="nc" id="L102">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

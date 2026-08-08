@@ -14,8 +14,12 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 
 /**
+ * Helper methods for navigating {@link XmlElement} trees by XPath-like paths,
+ * reading/writing XML files, and extracting node content and attributes.
  *
- * @author HeDYn<hedyn@foxmail.com>
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.util.XmlElement
  */
 public class XmlElementHelper {
 

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AddBuddyActivity.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">io.github.easy4j:fetion4j-sdk</a> &gt; <a href="index.source.html" class="el_package">net.apexes.fetion4j.core.client.activity</a> &gt; <span class="el_source">AddBuddyActivity.java</span></div><h1>AddBuddyActivity.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (C) 2013, Apexes Network Technology. All rights reserved.
+ *
+ *       http://www.apexes.net
+ *
+ */
+package net.apexes.fetion4j.core.client.activity;
+
+import net.apexes.fetion4j.core.FetionException;
+import net.apexes.fetion4j.core.Result;
+import net.apexes.fetion4j.core.client.Activity;
+import net.apexes.fetion4j.core.client.Controller;
+import net.apexes.fetion4j.core.client.FetionContext;
+import net.apexes.fetion4j.core.sipc.RequestMessage;
+import net.apexes.fetion4j.core.sipc.ResponseMessage;
+import net.apexes.fetion4j.core.sipc.Sipc;
+import net.apexes.fetion4j.core.user.Buddy;
+import net.apexes.fetion4j.core.user.BuddyGroup;
+import net.apexes.fetion4j.core.user.Contact;
+import net.apexes.fetion4j.core.user.Relation;
+import net.apexes.fetion4j.core.util.XmlElement;
+
+/**
+ * SIPC activity for adding a buddy by mobile number or Fetion user ID.
+ * Handles the server response and updates the local contact list.
+ *
+ * @author &lt;a href=&quot;https://github.com/loong10k&quot;&gt;@Loong Wan&lt;/a&gt;
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.client.Activity
+ * @see net.apexes.fetion4j.core.user.Buddy
+ */
+public class AddBuddyActivity extends Activity {
+    
+    public AddBuddyActivity(FetionContext context, Controller controller, int callId) {
+<span class="fc" id="L35">        super(context, controller, callId);</span>
+<span class="fc" id="L36">    }</span>
+    
+    /**
+     * 添加好友。
+     * 
+     * @param mobileNo
+     *      手机号码
+     * @param localName 
+     *      要在本地显示的名称
+     * @param buddyGroup
+     *      要放到的好友分组，为 null 表示不放到到任何组中
+     * @param desc
+     *      对方看到的名称
+     * @param phraseId 
+     *      对方收到的添加好友请求的文字内容。对应 SystemConfig 中的
+     *      “/parameters/hints/addbuddy-phrases/phrase”节点的 id 属性
+     * @return 
+     */
+    public Result addBuddy(long mobileNo, String localName, 
+            BuddyGroup buddyGroup, String desc, int phraseId) throws FetionException {
+<span class="nc" id="L56">        String uri = String.format(&quot;tel:%d&quot;, mobileNo);</span>
+<span class="nc" id="L57">        return addBuddy(uri, localName, buddyGroup, desc, phraseId);</span>
+    }
+    
+    /**
+     * 添加好友。
+     * 
+     * @param userId
+     *      飞信号
+     * @param localName 
+     *      要在本地显示的名称
+     * @param buddyGroup
+     *      要放到的好友分组，为 null 表示不放到到任何组中
+     * @param desc
+     *      对方看到的名称
+     * @param phraseId 
+     *      对方收到的添加好友请求的文字内容。对应 SystemConfig 中的
+     *      “/parameters/hints/addbuddy-phrases/phrase”节点的 id 属性
+     * @return 
+     */
+    public Result addBuddy(int userId, String localName, 
+            BuddyGroup buddyGroup, String desc, int phraseId) throws FetionException {
+<span class="nc" id="L78">        String uri = String.format(&quot;sip:%d&quot;, userId);</span>
+<span class="nc" id="L79">        return addBuddy(uri, localName, buddyGroup, desc, phraseId);</span>
+    }
+    
+    /**
+     * 
+     * @param uri
+     * @param localName
+     * @param buddyGroup
+     * @param desc
+     * @param phraseId
+     * @return
+     * @throws FetionException 
+     */
+    private Result addBuddy(String uri, String localName, 
+            BuddyGroup buddyGroup, String desc, int phraseId) throws FetionException {
+<span class="nc bnc" id="L94" title="All 4 branches missed.">        if (desc == null &amp;&amp; desc.isEmpty()) {</span>
+<span class="nc" id="L95">            desc = getContext().getUserInfo().getPersonal().getName();</span>
+        }
+<span class="nc" id="L97">        RequestMessage request = MessageHelper.createAddBuddyRequest(uri, </span>
+                localName, buddyGroup, desc, phraseId);
+        Result reply;
+<span class="nc" id="L100">        ResponseMessage response = submit(request);</span>
+<span class="nc" id="L101">        int status = response.getStatus();</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">        if (status == Sipc.STATUS_ACTION_OK) {</span>
+<span class="nc" id="L103">            addedBuddy(response.getBody());</span>
+<span class="nc" id="L104">            reply = new Result(status, response.getStatusMessage(), Result.Type.SUCCESS, &quot;添加好友成功！&quot;);</span>
+        } else {
+<span class="nc" id="L106">            reply = new Result(status, response.getStatusMessage(), Result.Type.FAILURE, &quot;添加好友失败！&quot;);</span>
+        }
+<span class="nc" id="L108">        return reply;</span>
+    }
+    
+    private void addedBuddy(String body) {
+        //&lt;results&gt;&lt;contacts version=&quot;407799076&quot;&gt;&lt;buddies&gt;
+        //&lt;buddy user-id=&quot;123456789&quot; status-code=&quot;200&quot; error-reason=&quot;NO REASON&quot;
+        // uri=&quot;tel:13800138000&quot; local-name=&quot;备注名称&quot; buddy-lists=&quot;&quot;
+        // relation-status=&quot;0&quot; online-notify=&quot;0&quot;  basic-service-status=&quot;1&quot; 
+        // permission-values=&quot;identity=1;buddy=2;&quot; desc=&quot;我是XX&quot;
+        // expose-mobile-no=&quot;1&quot; expose-name=&quot;1&quot; addbuddy-phrase-id=&quot;0&quot; addbuddy-phrase=&quot;&quot; /&gt;
+        // &lt;/buddies&gt;&lt;/contacts&gt;&lt;/results&gt;
+        try {
+<span class="nc" id="L120">            Contact contact = getContext().getUserInfo().getContact();</span>
+<span class="nc" id="L121">            XmlElement xml = new XmlElement();</span>
+<span class="nc" id="L122">            xml.parseString(body);</span>
+<span class="nc" id="L123">            xml = xml.getChild(&quot;contacts&quot;);</span>
+<span class="nc" id="L124">            String contactVersion = xml.getStringAttribute(&quot;version&quot;);</span>
+<span class="nc" id="L125">            xml = xml.getChild(&quot;buddies&quot;);</span>
+<span class="nc bnc" id="L126" title="All 2 branches missed.">            for (XmlElement el : xml.getChildren(&quot;buddy&quot;)) {</span>
+<span class="nc" id="L127">                int userId = el.getIntAttribute(&quot;user-id&quot;);</span>
+<span class="nc" id="L128">                String uri = el.getStringAttribute(&quot;uri&quot;);</span>
+<span class="nc" id="L129">                String name = el.getStringAttribute(&quot;local-name&quot;);</span>
+<span class="nc" id="L130">                int r = el.getIntAttribute(&quot;relation-status&quot;);</span>
+<span class="nc" id="L131">                Relation relation = Relation.valueOf(r);</span>
+<span class="nc" id="L132">                Buddy buddy = new Buddy(userId, uri, name, relation);</span>
+<span class="nc" id="L133">                contact.addBuddy(buddy, contactVersion);</span>
+<span class="nc" id="L134">                getController().fireAddedBuddy(buddy, contactVersion);</span>
+<span class="nc" id="L135">            }</span>
+<span class="nc" id="L136">        } catch (Exception ex) {</span>
+<span class="nc" id="L137">            getContext().getLogHandler().error(AddBuddyActivity.class, body, ex);</span>
+<span class="nc" id="L138">        }</span>
+<span class="nc" id="L139">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

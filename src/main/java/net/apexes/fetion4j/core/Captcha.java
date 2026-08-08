@@ -7,8 +7,13 @@
 package net.apexes.fetion4j.core;
 
 /**
+ * Represents a captcha challenge issued by the server during authentication.
+ * Provides access to the captcha image data, verification algorithm, and
+ * related metadata.
  *
- * @author HeDYn <hedyn@foxmail.com>
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.AuthFeedback
  */
 public interface Captcha {
     

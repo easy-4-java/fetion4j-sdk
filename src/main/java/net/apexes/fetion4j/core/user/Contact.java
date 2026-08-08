@@ -13,8 +13,13 @@ import java.util.Collections;
 import java.util.List;
 
 /**
+ * Aggregates the full contact list: buddy groups, buddies, and a blacklist.
+ * Supports add/remove operations and lookup by user ID or URI.
  *
- * @author HeDYn <hedyn@foxmail.com>
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.user.Buddy
+ * @see net.apexes.fetion4j.core.user.BuddyGroup
  */
 public final class Contact implements java.io.Serializable {
     

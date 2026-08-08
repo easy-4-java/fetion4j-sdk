@@ -8,8 +8,14 @@
 package net.apexes.fetion4j.core.sipc;
 
 /**
+ * SIPC request message sent from the client to the server. Carries an
+ * acceptor (destination host) and method, and produces a headline in the
+ * format {@code METHOD acceptor SIP-C/4.0}.
  *
- * @author HeDYn <hedyn@foxmail.com>
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.sipc.SipcMessage
+ * @see net.apexes.fetion4j.core.sipc.ResponseMessage
  */
 public class RequestMessage extends SipcMessage {
     

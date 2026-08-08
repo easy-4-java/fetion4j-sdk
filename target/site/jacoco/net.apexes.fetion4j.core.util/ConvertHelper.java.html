@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ConvertHelper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">io.github.easy4j:fetion4j-sdk</a> &gt; <a href="index.source.html" class="el_package">net.apexes.fetion4j.core.util</a> &gt; <span class="el_source">ConvertHelper.java</span></div><h1>ConvertHelper.java</h1><pre class="source lang-java linenums"> /*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.apexes.fetion4j.core.util;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.StringTokenizer;
+
+/**
+ * Utility class for converting between byte arrays, hex strings, UTF-8
+ * strings, integers, and input streams.
+ *
+ * @author &lt;a href=&quot;https://github.com/loong10k&quot;&gt;@Loong Wan&lt;/a&gt;
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.util.DigestHelper
+ */
+<span class="nc" id="L33">public class ConvertHelper {</span>
+
+    // 16进制字符数组
+<span class="fc" id="L36">    private static char[] hex = new char[]{</span>
+        '0', '1', '2', '3', '4', '5', '6', '7',
+        '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
+    };
+
+    /**
+     * 把字节数组转换成16进制字符串
+     * 
+     * @param b
+     * 			字节数组
+     * @return
+     * 			16进制字符串，每个字节之间空格分隔，头尾无空格
+     */
+    public static String byte2HexString(byte[] b) {
+<span class="fc bfc" id="L50" title="All 2 branches covered.">        if (b == null) {</span>
+<span class="fc" id="L51">            return &quot;null&quot;;</span>
+        } else {
+<span class="fc" id="L53">            return byte2HexString(b, 0, b.length);</span>
+        }
+    }
+
+    /**
+     * 把字节数组转换成16进制字符串
+     * 
+     * @param b
+     * 			字节数组
+     * @param offset
+     * 			从哪里开始转换
+     * @param len
+     * 			转换的长度
+     * @return 16进制字符串，每个字节之间空格分隔，头尾无空格
+     */
+    public static String byte2HexString(byte[] b, int offset, int len) {
+<span class="pc bpc" id="L69" title="1 of 2 branches missed.">        if (b == null) {</span>
+<span class="nc" id="L70">            return &quot;null&quot;;</span>
+        }
+
+        // 检查索引范围
+<span class="fc" id="L74">        int end = offset + len;</span>
+<span class="pc bpc" id="L75" title="1 of 2 branches missed.">        if (end &gt; b.length) {</span>
+<span class="nc" id="L76">            end = b.length;</span>
+        }
+
+<span class="fc" id="L79">        StringBuilder sb = new StringBuilder();</span>
+
+<span class="fc bfc" id="L81" title="All 2 branches covered.">        for (int i = offset; i &lt; end; i++) {</span>
+<span class="fc" id="L82">            sb.append(hex[(b[i] &amp; 0xF0) &gt;&gt;&gt; 4]).append(hex[b[i] &amp; 0xF]).append(' ');</span>
+        }
+<span class="pc bpc" id="L84" title="1 of 2 branches missed.">        if (sb.length() &gt; 0) {</span>
+<span class="fc" id="L85">            sb.deleteCharAt(sb.length() - 1);</span>
+        }
+<span class="fc" id="L87">        return sb.toString();</span>
+    }
+
+    /**
+     * 把字节数组转换成16进制字符串
+     * 
+     * @param b
+     * 			字节数组
+     * @return
+     * 			16进制字符串，每个字节没有空格分隔
+     */
+    public static String byte2HexStringWithoutSpace(byte[] b) {
+<span class="fc bfc" id="L99" title="All 2 branches covered.">        if (b == null) {</span>
+<span class="fc" id="L100">            return &quot;null&quot;;</span>
+        }
+
+<span class="fc" id="L103">        return byte2HexStringWithoutSpace(b, 0, b.length);</span>
+    }
+
+    /**
+     * 把字节数组转换成16进制字符串
+     * 
+     * @param b
+     * 			字节数组
+     * @param offset
+     * 			从哪里开始转换
+     * @param len
+     * 			转换的长度
+     * @return 16进制字符串，每个字节没有空格分隔
+     */
+    public static String byte2HexStringWithoutSpace(byte[] b, int offset, int len) {
+<span class="pc bpc" id="L118" title="1 of 2 branches missed.">        if (b == null) {</span>
+<span class="nc" id="L119">            return &quot;null&quot;;</span>
+        }
+
+        // 检查索引范围
+<span class="fc" id="L123">        int end = offset + len;</span>
+<span class="pc bpc" id="L124" title="1 of 2 branches missed.">        if (end &gt; b.length) {</span>
+<span class="nc" id="L125">            end = b.length;</span>
+        }
+
+<span class="fc" id="L128">        StringBuilder sb = new StringBuilder();</span>
+
+<span class="fc bfc" id="L130" title="All 2 branches covered.">        for (int i = offset; i &lt; end; i++) {</span>
+<span class="fc" id="L131">            sb.append(hex[(b[i] &amp; 0xF0) &gt;&gt;&gt; 4]).append(hex[b[i] &amp; 0xF]);</span>
+        }
+<span class="fc" id="L133">        return sb.toString();</span>
+    }
+
+    /**
+     * 转换16进制字符串为字节数组
+     * 
+     * @param s
+     * 			16进制字符串，每个字节由空格分隔
+     * @return 字节数组，如果出错，返回null，如果是空字符串，也返回null
+     */
+    public static byte[] hexString2Byte(String s) {
+        try {
+<span class="fc" id="L145">            s = s.trim();</span>
+<span class="fc" id="L146">            StringTokenizer st = new StringTokenizer(s, &quot; &quot;);</span>
+<span class="fc" id="L147">            byte[] ret = new byte[st.countTokens()];</span>
+<span class="fc bfc" id="L148" title="All 2 branches covered.">            for (int i = 0; st.hasMoreTokens(); i++) {</span>
+<span class="fc" id="L149">                String byteString = st.nextToken();</span>
+
+                // 一个字节是2个16进制数，如果不对，返回null
+<span class="fc bfc" id="L152" title="All 2 branches covered.">                if (byteString.length() &gt; 2) {</span>
+<span class="fc" id="L153">                    return null;</span>
+                }
+
+<span class="fc" id="L156">                ret[i] = (byte) (Integer.parseInt(byteString, 16) &amp; 0xFF);</span>
+            }
+<span class="fc" id="L158">            return ret;</span>
+<span class="nc" id="L159">        } catch (Exception e) {</span>
+<span class="nc" id="L160">            return null;</span>
+        }
+    }
+
+    /**
+     * 把一个16进制字符串转换为字节数组，字符串没有空格，所以每两个字符
+     * 一个字节
+     * 
+     * @param s
+     * @return
+     */
+    public static byte[] hexString2ByteNoSpace(String s) {
+<span class="fc" id="L172">        int len = s.length();</span>
+<span class="fc" id="L173">        byte[] ret = new byte[len &gt;&gt;&gt; 1];</span>
+<span class="fc bfc" id="L174" title="All 2 branches covered.">        for (int i = 0; i &lt;= len - 2; i += 2) {</span>
+<span class="fc" id="L175">            ret[i &gt;&gt;&gt; 1] = (byte) (Integer.parseInt(s.substring(i, i + 2).trim(), 16) &amp; 0xFF);</span>
+        }
+<span class="fc" id="L177">        return ret;</span>
+    }
+
+    /**
+     * 把输入流转化一个字符串
+     * @param in 输入流
+     * @return	字符串
+     * @throws IOException
+     */
+    public static String inputStream2String(InputStream in) throws IOException {
+<span class="fc" id="L187">        ByteArrayOutputStream out = new ByteArrayOutputStream();</span>
+<span class="fc" id="L188">        byte[] b = new byte[1024];</span>
+<span class="fc" id="L189">        int len = 0;</span>
+<span class="fc bfc" id="L190" title="All 2 branches covered.">        while ((len = in.read(b)) != -1) {</span>
+<span class="fc" id="L191">            out.write(b, 0, len);</span>
+        }
+<span class="fc" id="L193">        return new String(out.toByteArray());</span>
+    }
+
+    /**
+     * 把字符串转换为utf8字节数据
+     * @param src		utf8编码原字符串
+     * @return			字节数组
+     */
+    public static byte[] string2Byte(String src) {
+<span class="fc" id="L202">        byte[] ret = null;</span>
+        try {
+<span class="fc" id="L204">            ret = src.getBytes(&quot;UTF8&quot;);</span>
+<span class="nc" id="L205">        } catch (UnsupportedEncodingException e) {</span>
+<span class="nc" id="L206">            throw new RuntimeException(e);</span>
+<span class="fc" id="L207">        }</span>
+<span class="fc" id="L208">        return ret;</span>
+    }
+
+    /**
+     * 把utf8字节数据转换为字符串
+     * @param src		utf8编码原字节数组
+     * @return			编码后的字符串
+     */
+    public static String byte2String(byte[] src) {
+<span class="fc" id="L217">        String ret = null;</span>
+        try {
+<span class="fc" id="L219">            ret = new String(src, &quot;UTF8&quot;);</span>
+<span class="nc" id="L220">        } catch (UnsupportedEncodingException e) {</span>
+<span class="nc" id="L221">            throw new RuntimeException(e);</span>
+<span class="fc" id="L222">        }</span>
+<span class="fc" id="L223">        return ret;</span>
+    }
+
+    /**
+     * 把整形数转换为字节数组
+     * @param i
+     * @return
+     */
+    public static byte[] int2Byte(int i) {
+<span class="fc" id="L232">        byte[] b = new byte[4];</span>
+<span class="fc bfc" id="L233" title="All 2 branches covered.">        for (int m = 0; m &lt; 4; m++, i &gt;&gt;= 8) {</span>
+<span class="fc" id="L234">            b[m] = (byte) (i &amp; 0x000000FF);</span>
+        }
+<span class="fc" id="L236">        return b;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

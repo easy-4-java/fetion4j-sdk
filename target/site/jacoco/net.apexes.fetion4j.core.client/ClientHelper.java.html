@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ClientHelper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">io.github.easy4j:fetion4j-sdk</a> &gt; <a href="index.source.html" class="el_package">net.apexes.fetion4j.core.client</a> &gt; <span class="el_source">ClientHelper.java</span></div><h1>ClientHelper.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (C) 2012, Apexes Network Technology. All rights reserved.
+ * 
+ *       http://www.apexes.net
+ * 
+ */
+package net.apexes.fetion4j.core.client;
+
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.HashMap;
+
+import net.apexes.fetion4j.core.FetionException;
+import net.apexes.fetion4j.core.sipc.ResponseMessage;
+import net.apexes.fetion4j.core.sipc.Sipc;
+import net.apexes.fetion4j.core.sipc.SipcMessage;
+import net.apexes.fetion4j.core.util.Base64;
+import net.apexes.fetion4j.core.util.XmlElement;
+
+/**
+ * Utility class providing SIPC message key generation, URI classification
+ * helpers, SID extraction, and captcha image retrieval from the server.
+ *
+ * @author &lt;a href=&quot;https://github.com/loong10k&quot;&gt;@Loong Wan&lt;/a&gt;
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.sipc.SipcMessage
+ * @see net.apexes.fetion4j.core.client.CaptchaImpl
+ */
+<span class="nc" id="L31">public final class ClientHelper {</span>
+    
+    /**
+     * 生成SIPC消息的key，生成规则为：callId_sequence_mothod
+     *
+     * @param message
+     * @return
+     */
+    public synchronized static String createSipcMessageKey(SipcMessage message) {
+<span class="fc" id="L40">        return message.getCallId() + &quot;_&quot; + message.getSequence() + &quot;_&quot; + message.getMethod();</span>
+    }
+
+    /**
+     * 判断是否是群 uri
+     *
+     * @return
+     */
+    public static boolean isGroupUri(String uri) {
+<span class="fc bfc" id="L49" title="All 4 branches covered.">        return uri != null &amp;&amp; uri.startsWith(&quot;sip:PG&quot;);</span>
+    }
+
+    /**
+     * 判断是否是手机号组成的 uri
+     *
+     * @param uri
+     * @return
+     */
+    public static boolean isMobileUri(String uri) {
+<span class="fc bfc" id="L59" title="All 4 branches covered.">        return uri != null &amp;&amp; uri.startsWith(&quot;tel:&quot;);</span>
+    }
+    
+    /**
+     * 
+     * @param account
+     * @return 
+     */
+    public static boolean isSipUri(String account) {
+<span class="fc bfc" id="L68" title="All 4 branches covered.">        if (account == null || account.isEmpty()) {</span>
+<span class="fc" id="L69">            return false;</span>
+        }
+<span class="fc" id="L71">        return account.matches(&quot;sip:\\w+@fetion.com.cn;p=[1-9][0-9]*&quot;);</span>
+    }
+    
+    /**
+     * 
+     * @param uri
+     * @return 
+     */
+    public static String getSidFromUri(String uri) {
+<span class="fc bfc" id="L80" title="All 2 branches covered.">        if (isSipUri(uri)) {</span>
+<span class="fc" id="L81">            int i1 = uri.indexOf(':') + 1;</span>
+<span class="fc" id="L82">            int i2 = uri.indexOf('@');</span>
+<span class="fc" id="L83">            return uri.substring(i1, i2);</span>
+        }
+<span class="fc" id="L85">        return null;</span>
+    }
+
+    /**
+     *
+     * @param response
+     * @return
+     */
+    public static CaptchaImpl getCaptcha(FetionContext config, ResponseMessage response)
+            throws IOException {
+        // W: Verify algorithm=&quot;picc-ChangeMachine&quot;,type=&quot;GeneralPic&quot;
+<span class="nc" id="L96">        String w = response.getFieldValue(Sipc.FIELD_W);</span>
+<span class="nc" id="L97">        HashMap&lt;String, String&gt; map = new HashMap&lt;String, String&gt;();</span>
+<span class="nc" id="L98">        String[] strArr = w.replace(&quot;Verify &quot;, &quot;&quot;).split(&quot;=|,&quot;);</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">        for (int i = 0; i &lt; strArr.length; i += 2) {</span>
+<span class="nc" id="L100">            map.put(strArr[i], strArr[i + 1].replace(&quot;\&quot;&quot;, &quot;&quot;));</span>
+        }
+<span class="nc" id="L102">        String algorithm = map.get(&quot;algorithm&quot;);</span>
+<span class="nc" id="L103">        String type = map.get(&quot;type&quot;);</span>
+
+        // &lt;results&gt;&lt;reason text=&quot;&quot; tips=&quot;&quot; text2=&quot;&quot;/&gt;&lt;/results&gt;
+<span class="nc" id="L106">        String body = response.getBody();</span>
+<span class="nc" id="L107">        XmlElement bodyEl = new XmlElement();</span>
+<span class="nc" id="L108">        bodyEl.parseString(body);</span>
+<span class="nc" id="L109">        XmlElement reasonEl = bodyEl.getChild(&quot;reason&quot;);</span>
+<span class="nc" id="L110">        String text = reasonEl.getStringAttribute(&quot;text&quot;);</span>
+<span class="nc" id="L111">        String tips = reasonEl.getStringAttribute(&quot;tips&quot;);</span>
+<span class="nc" id="L112">        return getCaptcha(config, algorithm, type, text, tips);</span>
+    }
+
+    /**
+     *
+     * @param config
+     * @param algorithm
+     * @param type
+     * @param text
+     * @param tips
+     * @return
+     * @throws FetionException
+     */
+    public static CaptchaImpl getCaptcha(
+            FetionContext context,
+            String algorithm,
+            String type,
+            String text,
+            String tips) throws IOException {
+<span class="nc" id="L131">        String picurl = context.getSystemConfig().getValue(&quot;/config/servers/get-pic-code&quot;);</span>
+<span class="nc" id="L132">        picurl += &quot;?algorithm=&quot; + algorithm;</span>
+<span class="nc" id="L133">        URL url = new URL(picurl);</span>
+<span class="nc" id="L134">        HttpURLConnection conn = (HttpURLConnection) url.openConnection();</span>
+<span class="nc" id="L135">        conn.addRequestProperty(&quot;User-Agent&quot;, &quot;IIC2.0/PC 4.0.0&quot;);</span>
+<span class="nc bnc" id="L136" title="All 2 branches missed.">        if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {</span>
+            // &lt;results&gt;&lt;pic-certificate id=&quot;7a6&quot; pic=&quot;/9j/4AAQSkZJRgABAQEAYABgAAD&quot; /&gt;&lt;/results&gt;
+<span class="nc" id="L138">            XmlElement xmlEl = new XmlElement();</span>
+<span class="nc" id="L139">            InputStreamReader reader = new InputStreamReader(conn.getInputStream());</span>
+<span class="nc" id="L140">            xmlEl.parseFromReader(reader);</span>
+<span class="nc" id="L141">            XmlElement pic = xmlEl.getChild(&quot;pic-certificate&quot;);</span>
+<span class="nc" id="L142">            String pid = pic.getStringAttribute(&quot;id&quot;);</span>
+<span class="nc" id="L143">            String code = pic.getStringAttribute(&quot;pic&quot;);</span>
+<span class="nc" id="L144">            byte[] base64Data = code.getBytes();</span>
+<span class="nc" id="L145">            byte[] bytes = Base64.decodeBase64(base64Data);</span>
+<span class="nc" id="L146">            return new CaptchaImpl(algorithm, type, text, tips, pid, bytes);</span>
+        } else {
+<span class="nc" id="L148">            throw new IOException(&quot;Http response is not OK. code=&quot; + conn.getResponseCode());</span>
+        }
+    }
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CmccMobileValidator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">io.github.easy4j:fetion4j-sdk</a> &gt; <a href="index.source.html" class="el_package">net.apexes.fetion4j.core.client</a> &gt; <span class="el_source">CmccMobileValidator.java</span></div><h1>CmccMobileValidator.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (C) 2013, Apexes Network Technology. All rights reserved.
+ *
+ *       http://www.apexes.net
+ *
+ */
+package net.apexes.fetion4j.core.client;
+
+import java.util.ArrayList;
+
+import net.apexes.fetion4j.core.util.XmlElement;
+import net.apexes.fetion4j.core.util.XmlElementHelper;
+
+/**
+ * Validates whether a given mobile number belongs to the China Mobile (CMCC)
+ * network by checking against known number-range definitions loaded from XML.
+ *
+ * @author &lt;a href=&quot;https://github.com/loong10k&quot;&gt;@Loong Wan&lt;/a&gt;
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.util.XmlElement
+ */
+public class CmccMobileValidator {
+    
+    private ArrayList&lt;Part&gt; partList;
+    
+    //&lt;r&gt;&lt;c v=&quot;cmcc&quot;&gt;
+    //&lt;d s=&quot;13500000000&quot; e=&quot;13999999999&quot;/&gt;
+    //&lt;d s=&quot;13400000000&quot; e=&quot;13489999999&quot;/&gt;
+    //&lt;d s=&quot;15900000000&quot; e=&quot;15999999999&quot;/&gt;
+    //&lt;/c&gt;&lt;/r&gt;
+    /**
+     * 
+     * @param xml 
+     */
+<span class="fc" id="L35">    public CmccMobileValidator(XmlElement xml) {</span>
+<span class="fc" id="L36">        partList = new ArrayList&lt;Part&gt;();</span>
+<span class="fc" id="L37">        xml = XmlElementHelper.getNode(xml, &quot;/r/c&quot;);</span>
+        
+<span class="fc bfc" id="L39" title="All 2 branches covered.">        for (XmlElement el : xml.getChildren()) {</span>
+<span class="fc" id="L40">            long s = el.getLongAttribute(&quot;s&quot;);</span>
+<span class="fc" id="L41">            long e = el.getLongAttribute(&quot;e&quot;);</span>
+<span class="pc bpc" id="L42" title="2 of 4 branches missed.">            if (s != 0 &amp;&amp; e != 0) {</span>
+<span class="fc" id="L43">                partList.add(new Part(s, e));</span>
+            }
+<span class="fc" id="L45">        }</span>
+<span class="fc" id="L46">    }</span>
+    
+    public boolean isCmccMobileNo(long mobileNo) {
+<span class="fc" id="L49">        boolean b = false;</span>
+<span class="fc bfc" id="L50" title="All 2 branches covered.">        for (Part part : partList) {</span>
+<span class="fc" id="L51">            b = part.isWithin(mobileNo);</span>
+<span class="fc bfc" id="L52" title="All 2 branches covered.">            if (b) {</span>
+<span class="fc" id="L53">                break;</span>
+            }
+<span class="fc" id="L55">        }</span>
+<span class="fc" id="L56">        return b;</span>
+    }
+    
+    /**
+     * 
+     */
+    private static class Part {
+        private long start;
+        private long end;
+        
+<span class="fc" id="L66">        Part(long start, long end) {</span>
+<span class="fc" id="L67">            this.start = start;</span>
+<span class="fc" id="L68">            this.end = end;</span>
+<span class="fc" id="L69">        }</span>
+        
+        boolean isWithin(long mobileNo) {
+<span class="fc bfc" id="L72" title="All 4 branches covered.">            return mobileNo &gt;= start &amp;&amp; mobileNo &lt;= end;</span>
+        }
+    }
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

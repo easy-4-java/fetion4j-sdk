@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>FetionConsoleImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">io.github.easy4j:fetion4j-sdk</a> &gt; <a href="index.source.html" class="el_package">net.apexes.fetion4j.core</a> &gt; <span class="el_source">FetionConsoleImpl.java</span></div><h1>FetionConsoleImpl.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (C) 2012, Apexes Network Technology. All rights reserved.
+ * 
+ *       http://www.apexes.net
+ * 
+ */
+
+package net.apexes.fetion4j.core;
+
+import net.apexes.fetion4j.core.client.Controller;
+import net.apexes.fetion4j.core.client.FetionContext;
+import net.apexes.fetion4j.core.user.Buddy;
+
+/**
+ * Default implementation of {@link FetionConsole} that delegates buddy and
+ * messaging operations to the underlying {@link Controller}.
+ *
+ * @author &lt;a href=&quot;https://github.com/loong10k&quot;&gt;@Loong Wan&lt;/a&gt;
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.FetionConsole
+ * @see net.apexes.fetion4j.core.client.Controller
+ */
+public class FetionConsoleImpl implements FetionConsole {
+    
+    private Controller controller;
+    private boolean closed;
+    
+<span class="fc" id="L28">    FetionConsoleImpl(Controller controller) {</span>
+<span class="fc" id="L29">        this.controller = controller;</span>
+<span class="fc" id="L30">        closed = false;</span>
+<span class="fc" id="L31">    }</span>
+    
+    @Override
+    public UserInfo getUserInfo() {
+<span class="fc" id="L35">        return controller.getContext().getUserInfo();</span>
+    }
+
+    @Override
+    public boolean isClosed() {
+<span class="fc" id="L40">        return closed;</span>
+    }
+
+    @Override
+    public void close() throws FetionException {
+<span class="fc" id="L45">        closed = true;</span>
+<span class="fc" id="L46">        controller.stop();</span>
+<span class="fc" id="L47">    }</span>
+
+    public Result addBuddy(int userId, String localName) throws FetionException {
+<span class="nc" id="L50">        String displayName = controller.getContext().getUserInfo().getPersonal().getDisplayName();</span>
+<span class="nc" id="L51">        return controller.createAddBuddyActivity().addBuddy(userId, localName, null, displayName, 0);</span>
+    }
+
+    public Result addBuddy(long mobileNo, String localName) throws FetionException {
+<span class="nc" id="L55">        FetionContext context = controller.getContext();</span>
+<span class="nc bnc" id="L56" title="All 2 branches missed.">        if (! context.getCmccMobileValidator().isCmccMobileNo(mobileNo)) {</span>
+<span class="nc" id="L57">            throw new FetionException(&quot;只能添加中国移动的手机号码。&quot;);</span>
+        }
+<span class="nc" id="L59">        String displayName = context.getUserInfo().getPersonal().getDisplayName();</span>
+<span class="nc" id="L60">        return controller.createAddBuddyActivity().addBuddy(mobileNo, localName, null, displayName, 0);</span>
+    }
+    
+    @Override
+    public Result removeBuddy(Buddy buddy) throws FetionException {
+<span class="nc" id="L65">        return controller.createDeleteBuddyActivity().deleteBuddy(buddy, true);</span>
+    }
+
+    @Override
+    public Result sendMessage(Buddy buddy, String message) throws FetionException {
+<span class="nc" id="L70">        return controller.createChatDialogue(buddy).sendMessage(message);</span>
+    }
+
+    @Override
+    public Result sendSMSMessage(Buddy buddy, String message) throws FetionException {
+<span class="nc" id="L75">        return controller.createChatDialogue(buddy).sendSMSMessage(message);</span>
+    }
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

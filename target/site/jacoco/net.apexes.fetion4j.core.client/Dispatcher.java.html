@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Dispatcher.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">io.github.easy4j:fetion4j-sdk</a> &gt; <a href="index.source.html" class="el_package">net.apexes.fetion4j.core.client</a> &gt; <span class="el_source">Dispatcher.java</span></div><h1>Dispatcher.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (C) 2012, Apexes Network Technology. All rights reserved.
+ * 
+ *       http://www.apexes.net
+ * 
+ */
+package net.apexes.fetion4j.core.client;
+
+import java.text.ParseException;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.LinkedBlockingQueue;
+
+import net.apexes.fetion4j.core.FetionException;
+import net.apexes.fetion4j.core.sipc.RequestMessage;
+import net.apexes.fetion4j.core.sipc.ResponseMessage;
+import net.apexes.fetion4j.core.sipc.SipcMessage;
+
+/**
+ * Dispatches SIPC requests to the server and correlates responses.
+ * Runs dedicated sender and receiver threads, matching each response
+ * to its originating request via a composite key.
+ *
+ * @author &lt;a href=&quot;https://github.com/loong10k&quot;&gt;@Loong Wan&lt;/a&gt;
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.client.ClientHelper
+ * @see net.apexes.fetion4j.core.sipc.ResponseMessage
+ */
+public class Dispatcher {
+
+    private Controller controller;
+    private LinkedBlockingQueue&lt;SipcMessage&gt; sendQueue;
+    /**
+     * 用于保存本地请求，以便在得到回复时与 RequestMessage 对象配对
+     */
+    private ConcurrentHashMap&lt;String, RequestMessage&gt; requestMap;
+    private ConcurrentHashMap&lt;String, ResponseMessage&gt; responseMap;
+
+<span class="nc" id="L38">    Dispatcher(Controller controller) {</span>
+<span class="nc" id="L39">        this.controller = controller;</span>
+<span class="nc" id="L40">        sendQueue = new LinkedBlockingQueue&lt;SipcMessage&gt;();</span>
+<span class="nc" id="L41">        requestMap = new ConcurrentHashMap&lt;String, RequestMessage&gt;();</span>
+<span class="nc" id="L42">        responseMap = new ConcurrentHashMap&lt;String, ResponseMessage&gt;();</span>
+<span class="nc" id="L43">        controller.getExecutorService().submit(new ReceiverTask());</span>
+<span class="nc" id="L44">        controller.getExecutorService().submit(new SenderTask());</span>
+<span class="nc" id="L45">    }</span>
+
+    /**
+     * 提交SIPC请求并阻塞线程等待返回的回复。
+     *
+     * @param request
+     * @param timeout 超时时间，单位为毫秒(ms)
+     * @return
+     * @throws FetionException
+     */
+    ResponseMessage submit(RequestMessage request, long timeout) throws FetionException {
+<span class="nc bnc" id="L56" title="All 2 branches missed.">        if (!controller.isRunning()) {</span>
+<span class="nc" id="L57">            throw new FetionException(&quot;提交请求失败，与服务器的连接已断开！&quot;);</span>
+        }
+<span class="nc" id="L59">        String key = ClientHelper.createSipcMessageKey(request);</span>
+<span class="nc" id="L60">        requestMap.put(key, request);</span>
+        try {
+<span class="nc" id="L62">            sendQueue.put(request);</span>
+<span class="nc" id="L63">            synchronized (request) {</span>
+<span class="nc" id="L64">                request.wait(timeout);</span>
+<span class="nc" id="L65">            }</span>
+<span class="nc" id="L66">            requestMap.remove(key);</span>
+<span class="nc" id="L67">            return responseMap.remove(key);</span>
+<span class="nc" id="L68">        } catch (Exception ex) {</span>
+<span class="nc" id="L69">            throw new FetionException(&quot;提交请求失败！&quot;, ex);</span>
+        }
+    }
+
+    private void receive(SipcMessage message) {
+<span class="nc bnc" id="L74" title="All 2 branches missed.">        if (message instanceof ResponseMessage) {</span>
+<span class="nc" id="L75">            ResponseMessage response = (ResponseMessage) message;</span>
+<span class="nc" id="L76">            String key = ClientHelper.createSipcMessageKey(response);</span>
+<span class="nc" id="L77">            RequestMessage request = requestMap.get(key);</span>
+<span class="nc" id="L78">            response.setRequestMessage(request);</span>
+<span class="nc" id="L79">            responseMap.put(key, response);</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">            if (request != null) {</span>
+<span class="nc" id="L81">                synchronized (request) {</span>
+<span class="nc" id="L82">                    request.notifyAll();</span>
+<span class="nc" id="L83">                }</span>
+<span class="nc" id="L84">                return;</span>
+            }
+        }
+        // 找不到对应请求的回复或者来自服务器的通知交由 Controller 去处理。
+<span class="nc" id="L88">        controller.receive(message);</span>
+<span class="nc" id="L89">    }</span>
+
+    /**
+     * 用于接收从服务端传来的SIPC消息，并将接收到的消息交给派发器处理。
+     */
+<span class="nc" id="L94">    private class ReceiverTask implements Runnable {</span>
+
+        public void run() {
+<span class="nc bnc" id="L97" title="All 2 branches missed.">            while (!Thread.interrupted()) {</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">                if (!controller.isRunning()) {</span>
+<span class="nc" id="L99">                    break;</span>
+                }
+                try {
+<span class="nc" id="L102">                    SipcMessage message = controller.getTransfer().read();</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">                    if (message != null) {</span>
+<span class="nc" id="L104">                        controller.getContext().getLogHandler().receive(message);</span>
+<span class="nc" id="L105">                        receive(message);</span>
+                    }
+<span class="nc" id="L107">                } catch (ParseException ex) {</span>
+<span class="nc" id="L108">                    controller.getContext().getLogHandler().error(Controller.class, &quot;解析SIPC信令出错！&quot;, ex);</span>
+<span class="nc" id="L109">                } catch (Exception ex) {</span>
+<span class="nc bnc" id="L110" title="All 2 branches missed.">                    if (controller.isRunning()) {</span>
+<span class="nc" id="L111">                        controller.fireTransfeError(&quot;传输出错！&quot;, ex);</span>
+                    }
+<span class="nc" id="L113">                }</span>
+            }
+<span class="nc" id="L115">        }</span>
+    }
+
+    /**
+     *
+     */
+<span class="nc" id="L121">    private class SenderTask implements Runnable {</span>
+
+        public void run() {
+<span class="nc bnc" id="L124" title="All 2 branches missed.">            while (!Thread.interrupted()) {</span>
+<span class="nc bnc" id="L125" title="All 2 branches missed.">                if (!controller.isRunning()) {</span>
+<span class="nc" id="L126">                    break;</span>
+                }
+                try {
+<span class="nc" id="L129">                    SipcMessage message = sendQueue.take();</span>
+<span class="nc" id="L130">                    controller.getTransfer().write(message);</span>
+<span class="nc" id="L131">                    controller.getContext().getLogHandler().transmit(message);</span>
+<span class="nc" id="L132">                } catch (Exception ex) {</span>
+<span class="nc bnc" id="L133" title="All 2 branches missed.">                    if (controller.isRunning()) {</span>
+<span class="nc" id="L134">                        controller.fireTransfeError(&quot;传输出错！&quot;, ex);</span>
+                    }
+<span class="nc" id="L136">                }</span>
+            }
+<span class="nc" id="L138">        }</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

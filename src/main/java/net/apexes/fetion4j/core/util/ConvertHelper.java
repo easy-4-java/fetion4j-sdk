@@ -23,9 +23,12 @@ import java.io.UnsupportedEncodingException;
 import java.util.StringTokenizer;
 
 /**
- * 转换类
+ * Utility class for converting between byte arrays, hex strings, UTF-8
+ * strings, integers, and input streams.
  *
- * @author solosky <solosky772@qq.com> 
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.util.DigestHelper
  */
 public class ConvertHelper {
 

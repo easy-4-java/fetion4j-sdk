@@ -30,8 +30,14 @@ import net.apexes.fetion4j.core.user.Presence;
 import net.apexes.fetion4j.core.util.XmlElement;
 
 /**
+ * Main entry point for the Fetion SDK. Manages the full login lifecycle
+ * including system-config retrieval, user-info loading, SSI account creation
+ * (with optional captcha), and SIPC session establishment.
  *
- * @author HeDYn <hedyn@foxmail.com>
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.FetionConsole
+ * @see net.apexes.fetion4j.core.client.FetionContext
  */
 public class Fetion implements FetionContext {
 

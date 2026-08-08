@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Result.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">io.github.easy4j:fetion4j-sdk</a> &gt; <a href="index.source.html" class="el_package">net.apexes.fetion4j.core</a> &gt; <span class="el_source">Result.java</span></div><h1>Result.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (C) 2012, Apexes Network Technology. All rights reserved.
+ * 
+ *       http://www.apexes.net
+ * 
+ */
+package net.apexes.fetion4j.core;
+
+/**
+ * Immutable value object representing the outcome of a Fetion operation,
+ * carrying an HTTP-style status code, status message, success/failure type,
+ * and a human-readable description.
+ *
+ * @author &lt;a href=&quot;https://github.com/loong10k&quot;&gt;@Loong Wan&lt;/a&gt;
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.Result.Type
+ */
+public class Result {
+    
+    /**
+     * 
+     */
+<span class="fc" id="L23">    public static enum Type {</span>
+        /**
+         * 成功
+         */
+<span class="fc" id="L27">        SUCCESS,</span>
+        /**
+         * 失败
+         */
+<span class="fc" id="L31">        FAILURE</span>
+    }
+    
+    /**
+     * 状态码
+     */
+    private int status;
+    /**
+	 * 回复状态说明
+	 */
+	private String statusMessage;
+    /**
+     * 类型
+     */
+    private Type type;
+    /**
+     * 描述信息
+     */
+    private String describe;
+    
+<span class="fc" id="L51">    public Result(int status, String statusMessage, Type type, String describe) {</span>
+<span class="fc" id="L52">        this.status = status;</span>
+<span class="fc" id="L53">        this.statusMessage = statusMessage;</span>
+<span class="fc" id="L54">        this.type = type;</span>
+<span class="fc" id="L55">        this.describe = describe;</span>
+<span class="fc" id="L56">    }</span>
+
+    public int getStatus() {
+<span class="fc" id="L59">        return status;</span>
+    }
+
+    public String getStatusMessage() {
+<span class="fc" id="L63">        return statusMessage;</span>
+    }
+
+    public Type getType() {
+<span class="fc" id="L67">        return type;</span>
+    }
+
+    public String getDescribe() {
+<span class="fc" id="L71">        return describe;</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="fc" id="L76">        return &quot;Result{&quot; </span>
+                + &quot;status=&quot; + status 
+                + &quot;, statusMessage=&quot; + statusMessage 
+                + &quot;, describe=&quot; + describe 
+                + '}';
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

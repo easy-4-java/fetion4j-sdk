@@ -1,0 +1,247 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SipcMessage.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">io.github.easy4j:fetion4j-sdk</a> &gt; <a href="index.source.html" class="el_package">net.apexes.fetion4j.core.sipc</a> &gt; <span class="el_source">SipcMessage.java</span></div><h1>SipcMessage.java</h1><pre class="source lang-java linenums">/*
+ * Copyright (C) 2012, Apexes Network Technology. All rights reserved.
+ * 
+ *       http://www.apexes.net
+ * 
+ */
+
+package net.apexes.fetion4j.core.sipc;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Abstract base class for all SIPC messages. Manages header fields,
+ * call-id, sequence number, body content, and serialisation to the
+ * SIPC wire format.
+ *
+ * @author &lt;a href=&quot;https://github.com/loong10k&quot;&gt;@Loong Wan&lt;/a&gt;
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.sipc.RequestMessage
+ * @see net.apexes.fetion4j.core.sipc.ResponseMessage
+ */
+public abstract class SipcMessage {
+    
+    /**
+     * 
+     */
+    public final static String SEPARATOR = &quot;\r\n&quot;;
+    
+    /**
+     * 请求方法
+     */
+    private String method;
+    
+    /**
+     * I头域的值。如“I: 1”中的1
+     */
+    private int callId;
+    /**
+     * Q头域中的数值。如“Q: 2 R”中的2
+     */
+    private int sequence;
+    /**
+     * 分块包的偏移，不是分块包时为-1
+     */
+<span class="fc" id="L46">    private int sliceOffset = -1;</span>
+    /**
+     * 消息头域
+     */
+    private List&lt;Field&gt; fieldList;
+    /**
+     * 消息的正文内容
+     */
+<span class="fc" id="L54">    private String body = null;</span>
+    
+<span class="fc" id="L56">    protected SipcMessage() {</span>
+<span class="fc" id="L57">        fieldList = new ArrayList&lt;Field&gt;();</span>
+<span class="fc" id="L58">    }</span>
+
+    public String getMethod() {
+<span class="fc" id="L61">        return method;</span>
+    }
+    
+    public void setMethod(String method) {
+<span class="fc" id="L65">        this.method = method;</span>
+<span class="fc" id="L66">    }</span>
+    
+    public int getCallId() {
+<span class="fc" id="L69">        return callId;</span>
+    }
+
+    public void setCallId(int callId) {
+<span class="fc" id="L73">        this.callId = callId;</span>
+<span class="fc" id="L74">    }</span>
+    
+    public int getSequence() {
+<span class="fc" id="L77">        return sequence;</span>
+    }
+
+    public void setSequence(int sequence) {
+<span class="fc" id="L81">        this.sequence = sequence;</span>
+<span class="fc" id="L82">    }</span>
+    
+    /**
+     * 返回分块包的偏移， 如果没有就返回-1 一个请求的结果如果太大，
+     * 服务器就会分成几个小的信令包返回，一般状态码为188 Partial就是一个分块包
+     * 如果是一个分块包，L头部类似于64240;p=0，后面的p就代表了这个分块包在整个包的偏移
+     *
+     * @return
+     */
+    public int getSliceOffset() {
+<span class="fc" id="L92">        return sliceOffset;</span>
+    }
+
+    /**
+     * 设置分块包的偏移
+     *
+     * @param sliceOffset
+     */
+    public void setSliceOffset(int sliceOffset) {
+<span class="fc" id="L101">        this.sliceOffset = sliceOffset;</span>
+<span class="fc" id="L102">    }</span>
+    
+    /**
+     * 返回 body 的字节数
+     * @return 
+     */
+    public int getBodyLength() {
+<span class="fc bfc" id="L109" title="All 2 branches covered.">        if (getBody() == null) {</span>
+<span class="fc" id="L110">            return 0;</span>
+        }
+<span class="fc" id="L112">        return getBody().getBytes().length;</span>
+    }
+    
+    public void addField(String name, String value) {
+<span class="fc" id="L116">        fieldList.add(new Field(name, value));</span>
+<span class="fc" id="L117">    }</span>
+    
+    public void setField(String name, String value) {
+<span class="fc" id="L120">        removeAllField(name);</span>
+<span class="fc" id="L121">        fieldList.add(new Field(name, value));</span>
+<span class="fc" id="L122">    }</span>
+    
+    public void removeField(String fieldName) {
+<span class="pc bpc" id="L125" title="1 of 2 branches missed.">        for (int i = fieldList.size() - 1; i &gt;= 0; i--) {</span>
+<span class="fc" id="L126">            Field field = fieldList.get(i);</span>
+<span class="pc bpc" id="L127" title="1 of 2 branches missed.">            if (field.getName().equals(fieldName)) {</span>
+<span class="fc" id="L128">                fieldList.remove(i);</span>
+<span class="fc" id="L129">                break;</span>
+            }
+        }
+<span class="fc" id="L132">    }</span>
+    
+    public void removeAllField(String fieldName) {
+<span class="fc bfc" id="L135" title="All 2 branches covered.">        for (int i = fieldList.size() - 1; i &gt;= 0; i--) {</span>
+<span class="fc" id="L136">            Field field = fieldList.get(i);</span>
+<span class="fc bfc" id="L137" title="All 2 branches covered.">            if (field.getName().equals(fieldName)) {</span>
+<span class="fc" id="L138">                fieldList.remove(i);</span>
+            }
+        }
+<span class="fc" id="L141">    }</span>
+    
+    /**
+     * 检查是否有给定名字的消息头域
+     * @param fieldName
+     * @return 如果有返回true，否则返回false.
+     */
+    public boolean hasField(String fieldName) {
+<span class="fc" id="L149">        boolean b = false;</span>
+<span class="fc bfc" id="L150" title="All 2 branches covered.">        for (Field field : fieldList) {</span>
+<span class="pc bpc" id="L151" title="1 of 2 branches missed.">            if (field.getName().equals(fieldName)) {</span>
+<span class="fc" id="L152">                b = true;</span>
+<span class="fc" id="L153">                break;</span>
+            }
+<span class="nc" id="L155">        }</span>
+<span class="fc" id="L156">        return b;</span>
+    }
+    
+    private Field getField(String fieldName) {
+<span class="fc bfc" id="L160" title="All 2 branches covered.">        for (Field field : fieldList) {</span>
+<span class="fc bfc" id="L161" title="All 2 branches covered.">            if (field.getName().equals(fieldName)) {</span>
+<span class="fc" id="L162">                return field;</span>
+            }
+<span class="fc" id="L164">        }</span>
+<span class="fc" id="L165">        return null;</span>
+    }
+    
+    public String getFieldValue(String fieldName) {
+<span class="fc" id="L169">        String value = null;</span>
+<span class="fc" id="L170">        Field field = getField(fieldName);</span>
+<span class="fc bfc" id="L171" title="All 2 branches covered.">        if (field != null) {</span>
+<span class="fc" id="L172">            value = field.getValue();</span>
+        }
+<span class="fc" id="L174">        return value;</span>
+    }
+    
+    public List&lt;String&gt; getFieldValues(String fieldName) {
+<span class="fc" id="L178">        ArrayList&lt;String&gt; list = new ArrayList&lt;String&gt;();</span>
+<span class="fc bfc" id="L179" title="All 2 branches covered.">        for (Field field : fieldList) {</span>
+<span class="pc bpc" id="L180" title="1 of 2 branches missed.">            if (field.getName().equals(fieldName)) {</span>
+<span class="fc" id="L181">                list.add(field.getValue());</span>
+            }
+<span class="fc" id="L183">        }</span>
+<span class="fc" id="L184">        return list;</span>
+    }
+
+    public String getBody() {
+<span class="fc" id="L188">        return body;</span>
+    }
+
+    public void setBody(String body) {
+<span class="fc" id="L192">        this.body = body;</span>
+<span class="fc" id="L193">    }</span>
+    
+    public String getText() {
+<span class="fc" id="L196">        StringBuilder buf = new StringBuilder(getHeadline());</span>
+<span class="fc" id="L197">        buf.append(SipcMessage.SEPARATOR);</span>
+        // I头域
+<span class="fc" id="L199">        buf.append(Sipc.FIELD_I);</span>
+<span class="fc" id="L200">        buf.append(&quot;: &quot;);</span>
+<span class="fc" id="L201">        buf.append(getCallId());</span>
+<span class="fc" id="L202">        buf.append(SipcMessage.SEPARATOR);</span>
+        // Q头域
+<span class="fc" id="L204">        buf.append(Sipc.FIELD_Q);</span>
+<span class="fc" id="L205">        buf.append(&quot;: &quot;);</span>
+<span class="fc" id="L206">        buf.append(getSequence());</span>
+<span class="fc" id="L207">        buf.append(&quot; &quot;);</span>
+<span class="fc" id="L208">        buf.append(getMethod());</span>
+<span class="fc" id="L209">        buf.append(SipcMessage.SEPARATOR);</span>
+        // 其他头域
+<span class="fc bfc" id="L211" title="All 2 branches covered.">        for (Field field : fieldList) {</span>
+<span class="fc" id="L212">            buf.append(field.getText());</span>
+<span class="fc" id="L213">            buf.append(SipcMessage.SEPARATOR);</span>
+<span class="fc" id="L214">        }</span>
+        // L头域和消息正文
+<span class="fc" id="L216">        int len = getBodyLength();</span>
+<span class="fc bfc" id="L217" title="All 2 branches covered.">        if (len &gt; 0) {</span>
+<span class="fc" id="L218">            buf.append(Sipc.FIELD_L);</span>
+<span class="fc" id="L219">            buf.append(&quot;: &quot;);</span>
+<span class="fc" id="L220">            buf.append(len);</span>
+<span class="fc bfc" id="L221" title="All 2 branches covered.">            if (getSliceOffset() != -1) {</span>
+<span class="fc" id="L222">                buf.append(&quot;;p=&quot;);</span>
+<span class="fc" id="L223">                buf.append(getSliceOffset());</span>
+            }
+<span class="fc" id="L225">            buf.append(SipcMessage.SEPARATOR);</span>
+<span class="fc" id="L226">            buf.append(SipcMessage.SEPARATOR);</span>
+<span class="fc" id="L227">            buf.append(getBody());</span>
+        } else {
+<span class="fc" id="L229">            buf.append(SipcMessage.SEPARATOR);</span>
+        }
+<span class="fc" id="L231">        return buf.toString();</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="fc" id="L236">        return getText();</span>
+    }
+    
+    /**
+     * 获取消息的标题
+     *
+     * @return 返回消息的标题
+     */
+    protected abstract String getHeadline();
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

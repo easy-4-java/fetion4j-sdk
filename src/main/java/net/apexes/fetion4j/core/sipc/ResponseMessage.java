@@ -8,8 +8,13 @@
 package net.apexes.fetion4j.core.sipc;
 
 /**
+ * SIPC response message received from the server. Carries a numeric status
+ * code, a status message, and a reference back to the originating request.
  *
- * @author HeDYn <hedyn@foxmail.com>
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.sipc.RequestMessage
+ * @see net.apexes.fetion4j.core.sipc.Sipc
  */
 public class ResponseMessage extends SipcMessage {
     

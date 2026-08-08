@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthGeneratorV4.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">io.github.easy4j:fetion4j-sdk</a> &gt; <a href="index.source.html" class="el_package">net.apexes.fetion4j.core.client.auth</a> &gt; <span class="el_source">AuthGeneratorV4.java</span></div><h1>AuthGeneratorV4.java</h1><pre class="source lang-java linenums">/**
+ * Project  : MapleFetion
+ * Package  : test
+ * File     : AuthGenerator.java
+ * Author   : solosky &lt; solosky772@qq.com &gt;
+ * Date     : 2009-11-16
+ * Modified : 2009-11-16
+ * License  : Apache License 2.0 
+ */
+package net.apexes.fetion4j.core.client.auth;
+
+import java.math.BigInteger;
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.RSAPublicKeySpec;
+import java.util.UUID;
+
+import javax.crypto.Cipher;
+
+import net.apexes.fetion4j.core.util.ConvertHelper;
+import net.apexes.fetion4j.core.util.DigestHelper;
+
+/**
+ * Generates the RSA-encrypted authentication response for SIPC V4 login.
+ * Combines the encrypted password, server nonce, and AES key into a single
+ * payload encrypted with the server's RSA public key.
+ *
+ * @author &lt;a href=&quot;https://github.com/loong10k&quot;&gt;@Loong Wan&lt;/a&gt;
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.client.auth.AuthDigest
+ * @see net.apexes.fetion4j.core.util.ConvertHelper
+ */
+<span class="fc" id="L36">public class AuthGeneratorV4 {</span>
+
+    /**
+     * 使用RSA加密字节数组
+     * @param publicKey  RSA公钥
+     * @param obj  要加密的字节数组
+     * @return byte[] 加密后的字节数组
+     */
+    protected byte[] encrypt(RSAPublicKey publicKey, byte[] obj) {
+<span class="pc bpc" id="L45" title="1 of 2 branches missed.">        if (publicKey != null) {</span>
+            try {
+<span class="fc" id="L47">                Cipher cipher = Cipher.getInstance(&quot;RSA/ECB/PKCS1Padding&quot;);</span>
+<span class="fc" id="L48">                cipher.init(Cipher.ENCRYPT_MODE, publicKey);</span>
+<span class="fc" id="L49">                return cipher.doFinal(obj);</span>
+<span class="nc" id="L50">            } catch (Exception e) {</span>
+<span class="nc" id="L51">                e.printStackTrace();</span>
+            }
+        }
+<span class="nc" id="L54">        return null;</span>
+    }
+
+    /** */
+    /**
+     * Basic decrypt method
+     * @return byte[]
+     */
+    protected byte[] decrypt(RSAPrivateKey privateKey, byte[] obj) {
+<span class="nc bnc" id="L63" title="All 2 branches missed.">        if (privateKey != null) {</span>
+            try {
+<span class="nc" id="L65">                Cipher cipher = Cipher.getInstance(&quot;RSA/ECB/PKCS1Padding&quot;);</span>
+
+<span class="nc" id="L67">                cipher.init(Cipher.DECRYPT_MODE, privateKey);</span>
+<span class="nc" id="L68">                return cipher.doFinal(obj);</span>
+<span class="nc" id="L69">            } catch (Exception e) {</span>
+<span class="nc" id="L70">                e.printStackTrace();</span>
+            }
+        }
+
+<span class="nc" id="L74">        return null;</span>
+    }
+
+    /**
+     * 生成加密结果
+     * @param publicKey		RSA公钥，从返回的W头部的key获取值，16进制表示的字节数组 67Bytes(134Chars)
+     * @param password		V4加密的密码，指用userid和明文密码加密过后的结果（两次sha1），16进制表示的字节数组 20Bytes(40Chars)
+     * @param nonce			服务器返回的随机字符串，看做字符串 16Bytes(32Chars)
+     * @param aeskey		AES算法的密钥，估计是加密或者解密用户配置的 32Bytes(64Chars)
+     * @return				生成的结果，16进制表示的字节数组
+     */
+    public String generate(String publicKey, String password, String nonce, String aeskey) {
+<span class="fc" id="L86">        byte[] pb = ConvertHelper.hexString2ByteNoSpace(password);</span>
+<span class="fc" id="L87">        byte[] nb = ConvertHelper.string2Byte(nonce);</span>
+<span class="fc" id="L88">        byte[] ab = ConvertHelper.hexString2ByteNoSpace(aeskey);</span>
+
+<span class="fc" id="L90">        byte[] res = new byte[pb.length + nb.length + ab.length];</span>
+<span class="fc" id="L91">        System.arraycopy(nb, 0, res, 0, nb.length);</span>
+<span class="fc" id="L92">        System.arraycopy(pb, 0, res, nb.length, pb.length);</span>
+<span class="fc" id="L93">        System.arraycopy(ab, 0, res, pb.length + nb.length, ab.length);</span>
+
+        try {
+<span class="fc" id="L96">            byte[] some = encrypt(parsePublicKey(publicKey), res);</span>
+
+<span class="fc" id="L98">            return ConvertHelper.byte2HexStringWithoutSpace(some);</span>
+<span class="nc" id="L99">        } catch (Exception e) {</span>
+<span class="nc" id="L100">            throw new RuntimeException(e);</span>
+        }
+    }
+
+    /**
+     * 从服务器返回的key字符串解析出RSA公钥
+     * @param publicKey		服务器返回的key字符串
+     * @return	解析出来的RSA公钥，可以用这个公钥加密数据
+     * @throws NoSuchAlgorithmException
+     * @throws InvalidKeySpecException
+     */
+    public RSAPublicKey parsePublicKey(String publicKey) throws NoSuchAlgorithmException, InvalidKeySpecException {
+<span class="fc" id="L112">        String modulusText = publicKey.substring(0, 0x100);</span>
+<span class="fc" id="L113">        String exponentText = publicKey.substring(0x100);</span>
+<span class="fc" id="L114">        BigInteger modulus = new BigInteger(1, ConvertHelper.hexString2ByteNoSpace(modulusText));</span>
+<span class="fc" id="L115">        BigInteger exponent = new BigInteger(1, ConvertHelper.hexString2ByteNoSpace(exponentText));</span>
+<span class="fc" id="L116">        KeyFactory keyFactory = KeyFactory.getInstance(&quot;RSA&quot;);</span>
+<span class="fc" id="L117">        RSAPublicKeySpec bobPubKeySpec = new RSAPublicKeySpec(modulus, exponent);</span>
+<span class="fc" id="L118">        RSAPublicKey rsapublicKey = (RSAPublicKey) keyFactory.generatePublic(bobPubKeySpec);</span>
+<span class="fc" id="L119">        return rsapublicKey;</span>
+    }
+
+    /**
+     * 返回客户端生成的随机字符串
+     * 用于R信令的CN
+     * @return
+     */
+    public static String getCnonce() {
+<span class="fc" id="L128">        String uuid = UUID.randomUUID().toString();</span>
+<span class="fc" id="L129">        return ConvertHelper.byte2HexStringWithoutSpace(DigestHelper.MD5(uuid.getBytes()));</span>
+    }
+    
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

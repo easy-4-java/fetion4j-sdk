@@ -14,8 +14,13 @@ import net.apexes.fetion4j.core.SystemConfig;
 import net.apexes.fetion4j.core.UserInfo;
 
 /**
+ * Read-only context providing access to account, system configuration,
+ * user info, mobile validator, and the log handler for a Fetion session.
  *
- * @author HeDYn <hedyn@foxmail.com>
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.Fetion
+ * @see net.apexes.fetion4j.core.Account
  */
 public interface FetionContext {
     

@@ -35,9 +35,15 @@ import net.apexes.fetion4j.core.user.User;
 import net.apexes.fetion4j.core.util.XmlElement;
 
 /**
- * 负责控制SIPC信令的传输和接收。
+ * Central controller for SIPC signalling transport and reception. Manages
+ * the TCP transfer layer, message dispatching, dialogue registration, and
+ * notification listener dispatch.
  *
- * @author HeDYn<hedyn@foxmail.com>
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.client.Dispatcher
+ * @see net.apexes.fetion4j.core.client.transfer.Transfer
+ * @see net.apexes.fetion4j.core.NotifyListener
  */
 public final class Controller {
 

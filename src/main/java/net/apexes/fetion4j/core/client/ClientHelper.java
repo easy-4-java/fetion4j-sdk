@@ -20,8 +20,13 @@ import net.apexes.fetion4j.core.util.Base64;
 import net.apexes.fetion4j.core.util.XmlElement;
 
 /**
+ * Utility class providing SIPC message key generation, URI classification
+ * helpers, SID extraction, and captcha image retrieval from the server.
  *
- * @author HeDYn <hedyn@foxmail.com>
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.sipc.SipcMessage
+ * @see net.apexes.fetion4j.core.client.CaptchaImpl
  */
 public final class ClientHelper {
     

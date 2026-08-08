@@ -19,8 +19,13 @@ import net.apexes.fetion4j.core.user.Contact;
 import net.apexes.fetion4j.core.util.XmlElement;
 
 /**
+ * SIPC activity for removing a buddy from the contact list, with an option
+ * to also remove oneself from the buddy's list (delete-both).
  *
- * @author HeDYn <hedyn@foxmail.com>
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.client.Activity
+ * @see net.apexes.fetion4j.core.user.Buddy
  */
 public class DeleteBuddyActivity extends Activity {
     

@@ -13,9 +13,12 @@ import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
 /**
- * 加密算法工具
- * 
- * @author HeDYn<hedyn@foxmail.com>
+ * Cryptographic digest utility providing MD5, SHA-1 hashing and AES-256
+ * key generation for the Fetion authentication protocol.
+ *
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.client.auth.PasswordEncrypterV4
  */
 public final class DigestHelper {
 

@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>StringHelper.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">io.github.easy4j:fetion4j-sdk</a> &gt; <a href="index.source.html" class="el_package">net.apexes.fetion4j.core.util</a> &gt; <span class="el_source">StringHelper.java</span></div><h1>StringHelper.java</h1><pre class="source lang-java linenums"> /*
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the &quot;License&quot;); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an &quot;AS IS&quot; BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package net.apexes.fetion4j.core.util;
+
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+
+/**
+ * General-purpose string utility: HTML escaping/unescaping, tag stripping,
+ * positional formatting, URL encoding, Base64 decoding, and case manipulation.
+ *
+ * @author &lt;a href=&quot;https://github.com/loong10k&quot;&gt;@Loong Wan&lt;/a&gt;
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.util.Base64
+ */
+<span class="nc" id="L30">public class StringHelper {</span>
+
+    /**
+     * 转义HTML中特殊的字符
+     * @param html
+     * @return
+     */
+    public static String qouteHtmlSpecialChars(String html) {
+<span class="fc bfc" id="L38" title="All 2 branches covered.">        if (html == null) {</span>
+<span class="fc" id="L39">            return null;</span>
+        }
+<span class="fc" id="L41">        String[] specialChars = {&quot;&amp;&quot;, &quot;\&quot;&quot;, &quot;'&quot;, &quot;&lt;&quot;, &quot;&gt;&quot;};</span>
+<span class="fc" id="L42">        String[] qouteChars = {&quot;&amp;amp;&quot;, &quot;&amp;quot;&quot;, &quot;&amp;apos;&quot;, &quot;&amp;lt;&quot;, &quot;&amp;gt;&quot;};</span>
+<span class="fc bfc" id="L43" title="All 2 branches covered.">        for (int i = 0; i &lt; specialChars.length; i++) {</span>
+<span class="fc" id="L44">            html = html.replace(specialChars[i], qouteChars[i]);</span>
+        }
+<span class="fc" id="L46">        return html;</span>
+    }
+
+    /**
+     * 反转义HTML中特殊的字符
+     * @param html
+     * @return
+     */
+    public static String unqouteHtmlSpecialChars(String html) {
+<span class="fc bfc" id="L55" title="All 2 branches covered.">        if (html == null) {</span>
+<span class="fc" id="L56">            return null;</span>
+        }
+<span class="fc" id="L58">        String[] specialChars = {&quot;&amp;&quot;, &quot;\&quot;&quot;, &quot;'&quot;, &quot;&lt;&quot;, &quot;&gt;&quot;, &quot; &quot;};</span>
+<span class="fc" id="L59">        String[] qouteChars = {&quot;&amp;amp;&quot;, &quot;&amp;quot;&quot;, &quot;&amp;apos;&quot;, &quot;&amp;lt;&quot;, &quot;&amp;gt;&quot;, &quot;&amp;nbsp;&quot;};</span>
+<span class="fc bfc" id="L60" title="All 2 branches covered.">        for (int i = 0; i &lt; specialChars.length; i++) {</span>
+<span class="fc" id="L61">            html = html.replace(qouteChars[i], specialChars[i]);</span>
+        }
+<span class="fc" id="L63">        return html;</span>
+    }
+
+    /**
+     * 去掉HTML标签
+     * @param html
+     * @return
+     */
+    public static String stripHtmlSpecialChars(String html) {
+<span class="fc bfc" id="L72" title="All 2 branches covered.">        if (html == null) {</span>
+<span class="fc" id="L73">            return null;</span>
+        }
+<span class="fc" id="L75">        html = html.replaceAll(&quot;&lt;/?[^&gt;]+&gt;&quot;, &quot;&quot;);</span>
+<span class="fc" id="L76">        html = html.replace(&quot;&amp;nbsp;&quot;, &quot; &quot;);</span>
+
+<span class="fc" id="L78">        return html;</span>
+    }
+
+    /**
+     * 以一种简单的方式格式化字符串
+     * 如  String s = StringHelper.format(&quot;{0} is {1}&quot;, &quot;apple&quot;, &quot;fruit&quot;);
+     * System.out.println(s);	//输出  apple is fruit.
+     * @param pattern
+     * @param args
+     * @return
+     */
+    public static String format(String pattern, Object... args) {
+<span class="fc bfc" id="L90" title="All 2 branches covered.">        for (int i = 0; i &lt; args.length; i++) {</span>
+<span class="fc" id="L91">            pattern = pattern.replace(&quot;{&quot; + i + &quot;}&quot;, args[i].toString());</span>
+        }
+<span class="fc" id="L93">        return pattern;</span>
+    }
+
+    /**
+     * 编码URL
+     * @param url
+     * @return
+     */
+    public static String urlEncode(String url) {
+        try {
+<span class="fc" id="L103">            return URLEncoder.encode(url, &quot;utf8&quot;);</span>
+<span class="nc" id="L104">        } catch (UnsupportedEncodingException e) {</span>
+<span class="nc" id="L105">            return url;</span>
+        }
+    }
+
+    /**
+     * base64解码
+     * @param code
+     * @return
+     */
+    public static byte[] base64Decode(String code) {
+        try {
+<span class="fc" id="L116">            byte[] bytesData = code.getBytes(&quot;utf8&quot;);</span>
+<span class="fc" id="L117">            return Base64.decodeBase64(bytesData);</span>
+<span class="nc" id="L118">        } catch (UnsupportedEncodingException e) {</span>
+<span class="nc" id="L119">            throw new IllegalArgumentException(e);</span>
+        }
+    }
+    
+    /**
+     * 保证首字母为小写。
+     * 
+     * @param str
+     * @return 
+     */
+    public static String firstToLowerCase(String str) {
+<span class="fc" id="L130">        return str.substring(0,1).toLowerCase() + str.substring(1);</span>
+    }
+    
+    /**
+     * 保证首字母为大写。
+     * 
+     * @param str
+     * @return 
+     */
+    public static String firstToUpperCase(String str) {
+<span class="fc" id="L140">        return str.substring(0,1).toUpperCase() + str.substring(1);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>

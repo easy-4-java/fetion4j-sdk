@@ -7,9 +7,13 @@
 package net.apexes.fetion4j.core.user;
 
 /**
- * 好友分组。
- * 
- * @author HeDYn<hedyn@foxmail.com>
+ * Named group for organising buddies in the contact list. Identified by
+ * a numeric ID and equality is based solely on that ID.
+ *
+ * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @since 3.0.0
+ * @see net.apexes.fetion4j.core.user.Contact
+ * @see net.apexes.fetion4j.core.user.Buddy
  */
 public class BuddyGroup implements java.io.Serializable {
     

@@ -1,0 +1,2335 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>XmlElement.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">io.github.easy4j:fetion4j-sdk</a> &gt; <a href="index.source.html" class="el_package">net.apexes.fetion4j.core.util</a> &gt; <span class="el_source">XmlElement.java</span></div><h1>XmlElement.java</h1><pre class="source lang-java linenums">/* XmlElement.java
+ *
+ * $Revision: 1.5 $
+ * $Date: 2002/03/24 10:27:59 $
+ * $Name: RELEASE_2_2_1 $
+ *
+ * This file is part of NanoXML 2 Lite.
+ * Copyright (C) 2000-2002 Marc De Scheemaecker, All Rights Reserved.
+ *
+ * This software is provided 'as-is', without any express or implied warranty.
+ * In no event will the authors be held liable for any damages arising from the
+ * use of this software.
+ *
+ * Permission is granted to anyone to use this software for any purpose,
+ * including commercial applications, and to alter it and redistribute it
+ * freely, subject to the following restrictions:
+ *
+ *  1. The origin of this software must not be misrepresented; you must not
+ *     claim that you wrote the original software. If you use this software in
+ *     a product, an acknowledgment in the product documentation would be
+ *     appreciated but is not required.
+ *
+ *  2. Altered source versions must be plainly marked as such, and must not be
+ *     misrepresented as being the original software.
+ *
+ *  3. This notice may not be removed or altered from any source distribution.
+ *****************************************************************************/
+package net.apexes.fetion4j.core.util;
+
+import java.io.ByteArrayOutputStream;
+import java.io.CharArrayReader;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.StringReader;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+/**
+ * XmlElement is a representation of an XML object. The object is able to parse
+ * XML code.
+ * &lt;P&gt;&lt;DL&gt;
+ * &lt;DT&gt;&lt;B&gt;Parsing XML Data&lt;/B&gt;&lt;/DT&gt;
+ * &lt;DD&gt;
+ * You can parse XML data using the following code:
+ * &lt;UL&gt;&lt;CODE&gt;
+ * XmlElement xml = new XmlElement();&lt;BR&gt;
+ * FileReader reader = new FileReader(&quot;filename.xml&quot;);&lt;BR&gt;
+ * xml.parseFromReader(reader);
+ * &lt;/CODE&gt;&lt;/UL&gt;&lt;/DD&gt;&lt;/DL&gt;
+ * &lt;DL&gt;&lt;DT&gt;&lt;B&gt;Retrieving Attributes&lt;/B&gt;&lt;/DT&gt;
+ * &lt;DD&gt;
+ * You can enumerate the attributes of an element using the method
+ * {@link #enumerateAttributeNames() enumerateAttributeNames}.
+ * The attribute values can be retrieved using the method
+ * {@link #getStringAttribute(java.lang.String) getStringAttribute}.
+ * The following example shows how to list the attributes of an element:
+ * &lt;UL&gt;&lt;CODE&gt;
+ * XmlElement element = ...;&lt;BR&gt;
+ * Enumeration enum = element.getAttributeNames();&lt;BR&gt;
+ * while (enum.hasMoreElements()) {&lt;BR&gt;
+ * &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;String key = (String) enum.nextElement();&lt;BR&gt;
+ * &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;String value = element.getStringAttribute(key);&lt;BR&gt;
+ * &amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;System.out.println(key + &quot; = &quot; + value);&lt;BR&gt;
+ * }
+ * &lt;/CODE&gt;&lt;/UL&gt;&lt;/DD&gt;&lt;/DL&gt;
+ * &lt;DL&gt;&lt;DT&gt;&lt;B&gt;Retrieving Child Elements&lt;/B&gt;&lt;/DT&gt;
+ * &lt;DD&gt;
+ * You can enumerate the children of an element using
+ * {@link #enumerateChildren() enumerateChildren}.
+ * The number of child elements can be retrieved using
+ * {@link #countChildren() countChildren}.
+ * &lt;/DD&gt;&lt;/DL&gt;
+ * &lt;DL&gt;&lt;DT&gt;&lt;B&gt;Elements Containing Character Data&lt;/B&gt;&lt;/DT&gt;
+ * &lt;DD&gt;
+ * If an elements contains character data, like in the following example:
+ * &lt;UL&gt;&lt;CODE&gt;
+ * &amp;lt;title&amp;gt;The Title&amp;lt;/title&amp;gt;
+ * &lt;/CODE&gt;&lt;/UL&gt;
+ * you can retrieve that data using the method
+ * {@link #getContent() getContent}.
+ * &lt;/DD&gt;&lt;/DL&gt;
+ * &lt;DL&gt;&lt;DT&gt;&lt;B&gt;Subclassing XmlElement&lt;/B&gt;&lt;/DT&gt;
+ * &lt;DD&gt;
+ * When subclassing XmlElement, you need to override the method
+ * {@link #createAnotherElement() createAnotherElement}
+ * which has to return a new copy of the receiver.
+ * &lt;/DD&gt;&lt;/DL&gt;
+ * &lt;P&gt;
+ *
+ * @see org.appframe.commons.util.XmlParseException
+ *
+ * @author Marc De Scheemaecker
+ * @author &lt;a href=&quot;https://github.com/loong10k&quot;&gt;@Loong Wan&lt;/a&gt;
+ * @since 3.0.0
+ *         &amp;lt;&lt;A href=&quot;mailto:cyberelf@mac.com&quot;&gt;cyberelf@mac.com&lt;/A&gt;&amp;gt;
+ * @version $Name: RELEASE_2_2_1 $, $Revision: 1.5 $
+ */
+public class XmlElement implements java.io.Serializable {
+
+    /**
+     * Serialization serial version ID.
+     */
+    private static final long serialVersionUID = 6685035139346394777L;
+    /**
+     * Separate line of system default.
+     */
+<span class="fc" id="L114">    private static final String LINE_SEPARATOR = System.getProperty(&quot;line.separator&quot;);</span>
+    /**
+     * The attributes given to the element.
+     *
+     * &lt;dl&gt;&lt;dt&gt;&lt;b&gt;Invariants:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;The field can be empty.
+     *     &lt;li&gt;The field is never &lt;code&gt;null&lt;/code&gt;.
+     *     &lt;li&gt;The keys and the values are strings.
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     */
+    private Map&lt;String, String&gt; attributes;
+    /**
+     * Child elements of the element.
+     *
+     * &lt;dl&gt;&lt;dt&gt;&lt;b&gt;Invariants:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;The field can be empty.
+     *     &lt;li&gt;The field is never &lt;code&gt;null&lt;/code&gt;.
+     *     &lt;li&gt;The elements are instances of &lt;code&gt;XmlElement&lt;/code&gt;
+     *         or a subclass of &lt;code&gt;XmlElement&lt;/code&gt;.
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     */
+    private List&lt;XmlElement&gt; children;
+    /**
+     * The name of the element.
+     *
+     * &lt;dl&gt;&lt;dt&gt;&lt;b&gt;Invariants:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;The field is &lt;code&gt;null&lt;/code&gt; iff the element is not
+     *         initialized by either parse or setName.
+     *     &lt;li&gt;If the field is not &lt;code&gt;null&lt;/code&gt;, it's not empty.
+     *     &lt;li&gt;If the field is not &lt;code&gt;null&lt;/code&gt;, it contains a valid
+     *         XML identifier.
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     */
+    private String name;
+    /**
+     * The parent of the element.
+     * 
+     */
+    private XmlElement parent;
+    /**
+     * The #PCDATA content of the object.
+     *
+     * &lt;dl&gt;&lt;dt&gt;&lt;b&gt;Invariants:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;The field is &lt;code&gt;null&lt;/code&gt; iff the element is not a
+     *         #PCDATA element.
+     *     &lt;li&gt;The field can be any string, including the empty string.
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     */
+    private String content;
+    /**
+     * Conversion table for &amp;amp;...; entities. The keys are the entity names
+     * without the &amp;amp; and ; delimiters.
+     *
+     * &lt;dl&gt;&lt;dt&gt;&lt;b&gt;Invariants:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;The field is never &lt;code&gt;null&lt;/code&gt;.
+     *     &lt;li&gt;The field always contains the following associations:
+     *         &quot;lt&quot;&amp;nbsp;=&amp;gt;&amp;nbsp;&quot;&amp;lt;&quot;, &quot;gt&quot;&amp;nbsp;=&amp;gt;&amp;nbsp;&quot;&amp;gt;&quot;,
+     *         &quot;quot&quot;&amp;nbsp;=&amp;gt;&amp;nbsp;&quot;\&quot;&quot;, &quot;apos&quot;&amp;nbsp;=&amp;gt;&amp;nbsp;&quot;'&quot;,
+     *         &quot;amp&quot;&amp;nbsp;=&amp;gt;&amp;nbsp;&quot;&amp;amp;&quot;
+     *     &lt;li&gt;The keys are strings
+     *     &lt;li&gt;The values are char arrays
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     */
+    private Map&lt;String, char[]&gt; entities;
+    /**
+     * The line number where the element starts.
+     *
+     * &lt;dl&gt;&lt;dt&gt;&lt;b&gt;Invariants:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;lineNr &amp;gt= 0&lt;/code&gt;
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     */
+    private int lineNr;
+    /**
+     * &lt;code&gt;true&lt;/code&gt; if the leading and trailing whitespace of #PCDATA
+     * sections have to be ignored.
+     */
+    private boolean ignoreWhitespace;
+    /**
+     * Character read too much.
+     * This character provides push-back functionality to the input reader
+     * without having to use a PushbackReader.
+     * If there is no such character, this field is '\0'.
+     */
+    private char charReadTooMuch;
+    /**
+     * The reader provided by the caller of the parse method.
+     *
+     * &lt;dl&gt;&lt;dt&gt;&lt;b&gt;Invariants:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;The field is not &lt;code&gt;null&lt;/code&gt; while the parse method
+     *         is running.
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     */
+    private Reader reader;
+    /**
+     * The current line number in the source content.
+     *
+     * &lt;dl&gt;&lt;dt&gt;&lt;b&gt;Invariants:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;parserLineNr &amp;gt; 0 while the parse method is running.
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     */
+    private int parserLineNr;
+    
+    /**
+     * Creates and initializes a new XML element.
+     * Calling the construction is equivalent to:
+     * &lt;ul&gt;&lt;code&gt;new XmlElement(new Hashtable(), false, true)
+     * &lt;/code&gt;&lt;/ul&gt;
+     *
+     * &lt;dl&gt;&lt;dt&gt;&lt;b&gt;Postconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;countChildren() =&gt; 0
+     *     &lt;li&gt;enumerateChildren() =&gt; empty enumeration
+     *     &lt;li&gt;enumeratePropertyNames() =&gt; empty enumeration
+     *     &lt;li&gt;getChildren() =&gt; empty vector
+     *     &lt;li&gt;getContent() =&gt; &quot;&quot;
+     *     &lt;li&gt;getLineNr() =&gt; 0
+     *     &lt;li&gt;getName() =&gt; null
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     *
+     * @see nanoxml.XmlElement#XmlElement(java.util.Hashtable)
+     *         XmlElement(Hashtable)
+     * @see nanoxml.XmlElement#XmlElement(boolean)
+     * @see nanoxml.XmlElement#XmlElement(java.util.Hashtable,boolean)
+     *         XmlElement(Hashtable, boolean)
+     */
+    public XmlElement() {
+<span class="fc" id="L239">        this(new HashMap&lt;String, char[]&gt;());</span>
+<span class="fc" id="L240">    }</span>
+
+    /**
+     * Creates and initializes a new XML element.
+     * Calling the construction is equivalent to:
+     * &lt;ul&gt;&lt;code&gt;new XmlElement(entities, false, true)
+     * &lt;/code&gt;&lt;/ul&gt;
+     *
+     * @param entities
+     *     The entity conversion table.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;entities != null&lt;/code&gt;
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     *
+     * &lt;dl&gt;&lt;dt&gt;&lt;b&gt;Postconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;countChildren() =&gt; 0
+     *     &lt;li&gt;enumerateChildren() =&gt; empty enumeration
+     *     &lt;li&gt;enumeratePropertyNames() =&gt; empty enumeration
+     *     &lt;li&gt;getChildren() =&gt; empty vector
+     *     &lt;li&gt;getContent() =&gt; &quot;&quot;
+     *     &lt;li&gt;getLineNr() =&gt; 0
+     *     &lt;li&gt;getName() =&gt; null
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;&lt;dl&gt;
+     *
+     * @see nanoxml.XmlElement#XmlElement()
+     * @see nanoxml.XmlElement#XmlElement(boolean)
+     * @see nanoxml.XmlElement#XmlElement(java.util.Hashtable,boolean)
+     *         XmlElement(Hashtable, boolean)
+     */
+    public XmlElement(Map&lt;String, char[]&gt; entities) {
+<span class="fc" id="L271">        this(entities, true, true);</span>
+<span class="fc" id="L272">    }</span>
+
+    /**
+     * Creates and initializes a new XML element.
+     * Calling the construction is equivalent to:
+     * &lt;ul&gt;&lt;code&gt;new XmlElement(new Hashtable(), skipLeadingWhitespace, true)
+     * &lt;/code&gt;&lt;/ul&gt;
+     *
+     * @param skipLeadingWhitespace
+     *     &lt;code&gt;true&lt;/code&gt; if leading and trailing whitespace in PCDATA
+     *     content has to be removed.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Postconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;countChildren() =&gt; 0
+     *     &lt;li&gt;enumerateChildren() =&gt; empty enumeration
+     *     &lt;li&gt;enumeratePropertyNames() =&gt; empty enumeration
+     *     &lt;li&gt;getChildren() =&gt; empty vector
+     *     &lt;li&gt;getContent() =&gt; &quot;&quot;
+     *     &lt;li&gt;getLineNr() =&gt; 0
+     *     &lt;li&gt;getName() =&gt; null
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;&lt;dl&gt;
+     *
+     * @see nanoxml.XmlElement#XmlElement()
+     * @see nanoxml.XmlElement#XmlElement(java.util.Hashtable)
+     *         XmlElement(Hashtable)
+     * @see nanoxml.XmlElement#XmlElement(java.util.Hashtable,boolean)
+     *         XmlElement(Hashtable, boolean)
+     */
+    public XmlElement(boolean skipLeadingWhitespace) {
+<span class="fc" id="L301">        this(new HashMap&lt;String, char[]&gt;(), skipLeadingWhitespace, true);</span>
+<span class="fc" id="L302">    }</span>
+
+    /**
+     * Creates and initializes a new XML element.
+     * Calling the construction is equivalent to:
+     * &lt;ul&gt;&lt;code&gt;new XmlElement(entities, skipLeadingWhitespace, true)
+     * &lt;/code&gt;&lt;/ul&gt;
+     *
+     * @param entities
+     *     The entity conversion table.
+     * @param skipLeadingWhitespace
+     *     &lt;code&gt;true&lt;/code&gt; if leading and trailing whitespace in PCDATA
+     *     content has to be removed.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;entities != null&lt;/code&gt;
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     *
+     * &lt;dl&gt;&lt;dt&gt;&lt;b&gt;Postconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;countChildren() =&gt; 0
+     *     &lt;li&gt;enumerateChildren() =&gt; empty enumeration
+     *     &lt;li&gt;enumeratePropertyNames() =&gt; empty enumeration
+     *     &lt;li&gt;getChildren() =&gt; empty vector
+     *     &lt;li&gt;getContent() =&gt; &quot;&quot;
+     *     &lt;li&gt;getLineNr() =&gt; 0
+     *     &lt;li&gt;getName() =&gt; null
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;&lt;dl&gt;
+     *
+     * @see nanoxml.XmlElement#XmlElement()
+     * @see nanoxml.XmlElement#XmlElement(boolean)
+     * @see nanoxml.XmlElement#XmlElement(java.util.Hashtable)
+     *         XmlElement(Hashtable)
+     */
+    public XmlElement(Map&lt;String, char[]&gt; entities, boolean skipLeadingWhitespace) {
+<span class="fc" id="L336">        this(entities, skipLeadingWhitespace, true);</span>
+<span class="fc" id="L337">    }</span>
+
+    /**
+     * Creates and initializes a new XML element.
+     * &lt;P&gt;
+     * This constructor should &lt;I&gt;only&lt;/I&gt; be called from
+     * {@link #createAnotherElement() createAnotherElement}
+     * to create child elements.
+     *
+     * @param entities
+     *     The entity conversion table.
+     * @param skipLeadingWhitespace
+     *     &lt;code&gt;true&lt;/code&gt; if leading and trailing whitespace in PCDATA
+     *     content has to be removed.
+     * @param fillBasicConversionTable
+     *     &lt;code&gt;true&lt;/code&gt; if the basic entities need to be added to
+     *     the entity list.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;entities != null&lt;/code&gt;
+     *     &lt;li&gt;if &lt;code&gt;fillBasicConversionTable == false&lt;/code&gt;
+     *         then &lt;code&gt;entities&lt;/code&gt; contains at least the following
+     *         entries: &lt;code&gt;amp&lt;/code&gt;, &lt;code&gt;lt&lt;/code&gt;, &lt;code&gt;gt&lt;/code&gt;,
+     *         &lt;code&gt;apos&lt;/code&gt; and &lt;code&gt;quot&lt;/code&gt;
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     *
+     * &lt;dl&gt;&lt;dt&gt;&lt;b&gt;Postconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;countChildren() =&gt; 0
+     *     &lt;li&gt;enumerateChildren() =&gt; empty enumeration
+     *     &lt;li&gt;enumeratePropertyNames() =&gt; empty enumeration
+     *     &lt;li&gt;getChildren() =&gt; empty vector
+     *     &lt;li&gt;getContent() =&gt; &quot;&quot;
+     *     &lt;li&gt;getLineNr() =&gt; 0
+     *     &lt;li&gt;getName() =&gt; null
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;&lt;dl&gt;
+     *
+     * @see nanoxml.XmlElement#createAnotherElement()
+     */
+    protected XmlElement(Map&lt;String, char[]&gt; entities, 
+            boolean skipLeadingWhitespace,
+<span class="fc" id="L377">            boolean fillBasicConversionTable) {</span>
+<span class="fc" id="L378">        this.ignoreWhitespace = skipLeadingWhitespace;</span>
+<span class="fc" id="L379">        this.name = null;</span>
+<span class="fc" id="L380">        this.parent = null;</span>
+<span class="fc" id="L381">        this.content = &quot;&quot;;</span>
+<span class="fc" id="L382">        this.attributes = new LinkedHashMap&lt;String, String&gt;();</span>
+<span class="fc" id="L383">        this.children = new ArrayList&lt;XmlElement&gt;();</span>
+<span class="fc" id="L384">        this.entities = new HashMap&lt;String, char[]&gt;();</span>
+<span class="fc" id="L385">        this.lineNr = 0;</span>
+<span class="pc bpc" id="L386" title="1 of 4 branches missed.">        if (entities != null &amp;&amp; !entities.isEmpty()) {</span>
+<span class="fc" id="L387">            this.entities.putAll(entities);</span>
+        }
+<span class="pc bpc" id="L389" title="1 of 2 branches missed.">        if (fillBasicConversionTable) {</span>
+<span class="fc" id="L390">            this.entities.put(&quot;amp&quot;, new char[]{'&amp;'});</span>
+<span class="fc" id="L391">            this.entities.put(&quot;quot&quot;, new char[]{'&quot;'});</span>
+<span class="fc" id="L392">            this.entities.put(&quot;apos&quot;, new char[]{'\''});</span>
+<span class="fc" id="L393">            this.entities.put(&quot;lt&quot;, new char[]{'&lt;'});</span>
+<span class="fc" id="L394">            this.entities.put(&quot;gt&quot;, new char[]{'&gt;'});</span>
+        }
+<span class="fc" id="L396">    }</span>
+   
+    /**
+     * 
+     * @return &lt;code&gt;true&lt;/code&gt; if the leading and trailing whitespace of #PCDATA
+     * sections have to be ignored.
+     */
+    public boolean isIgnoreWhitespace() {
+<span class="fc" id="L404">        return ignoreWhitespace;</span>
+    }
+
+    /**
+     * Adds a child element.
+     *
+     * @param child
+     *     The child element to add.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;child != null&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;child.getName() != null&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;child&lt;/code&gt; does not have a parent element
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     *
+     * &lt;dl&gt;&lt;dt&gt;&lt;b&gt;Postconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;countChildren() =&gt; old.countChildren() + 1
+     *     &lt;li&gt;enumerateChildren() =&gt; old.enumerateChildren() + child
+     *     &lt;li&gt;getChildren() =&gt; old.enumerateChildren() + child
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;&lt;dl&gt;
+     *
+     * @see nanoxml.XmlElement#countChildren()
+     * @see nanoxml.XmlElement#enumerateChildren()
+     * @see nanoxml.XmlElement#getChildren()
+     * @see nanoxml.XmlElement#removeChild(nanoxml.XmlElement)
+     *         removeChild(XmlElement)
+     */
+    public void addChild(XmlElement child) {
+<span class="fc bfc" id="L432" title="All 2 branches covered.">        if (child == this) {</span>
+<span class="fc" id="L433">            throw new IllegalArgumentException(&quot;Child element can't is this.&quot;);</span>
+        }
+<span class="fc" id="L435">        XmlElement el = this.parent;</span>
+<span class="fc bfc" id="L436" title="All 2 branches covered.">        while (el != null) {</span>
+<span class="pc bpc" id="L437" title="1 of 2 branches missed.">            if (child == el) {</span>
+<span class="nc" id="L438">                throw new IllegalArgumentException(&quot;Child element can't is super.&quot;);</span>
+            }
+<span class="fc" id="L440">            el = el.parent;</span>
+        }
+<span class="fc" id="L442">        child.setParent(this);</span>
+<span class="fc" id="L443">        this.children.add(child);</span>
+<span class="fc" id="L444">    }</span>
+    
+    /**
+     * Removes a child element.
+     *
+     * @param child
+     *     The child element to remove.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;child != null&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;child&lt;/code&gt; is a child element of the receiver
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     *
+     * &lt;dl&gt;&lt;dt&gt;&lt;b&gt;Postconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;countChildren() =&gt; old.countChildren() - 1
+     *     &lt;li&gt;enumerateChildren() =&gt; old.enumerateChildren() - child
+     *     &lt;li&gt;getChildren() =&gt; old.enumerateChildren() - child
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;&lt;dl&gt;
+     *
+     * @see nanoxml.XmlElement#addChild(nanoxml.XmlElement)
+     *         addChild(XmlElement)
+     * @see nanoxml.XmlElement#countChildren()
+     * @see nanoxml.XmlElement#enumerateChildren()
+     * @see nanoxml.XmlElement#getChildren()
+     */
+    public void removeChild(XmlElement child) {
+<span class="fc" id="L470">        child.setParent(null);</span>
+<span class="fc" id="L471">        this.children.remove(child);</span>
+<span class="fc" id="L472">    }</span>
+
+    /**
+     * Returns the name of the element.
+     *
+     * @see nanoxml.XmlElement#setName(java.lang.String) setName(String)
+     */
+    public String getName() {
+<span class="fc" id="L480">        return this.name;</span>
+    }
+    
+    /**
+     * Changes the name of the element.
+     *
+     * @param name
+     *     The new name.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;name != null&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;name&lt;/code&gt; is a valid XML identifier
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     *
+     * @see nanoxml.XmlElement#getName()
+     */
+    public void setName(String name) {
+<span class="fc" id="L497">        this.name = name;</span>
+<span class="fc" id="L498">    }</span>
+    
+    /**
+     * Returns the parent of the element.
+     * 
+     * @return 
+     */
+    public XmlElement getParent() {
+<span class="fc" id="L506">        return parent;</span>
+    }
+    
+    /**
+     * 
+     * @param parent 
+     */
+    protected void setParent(XmlElement parent) {
+<span class="fc" id="L514">        this.parent = parent;</span>
+<span class="fc" id="L515">    }</span>
+    
+    /**
+     * Returns the number of child elements of the element.
+     *
+     * &lt;dl&gt;&lt;dt&gt;&lt;b&gt;Postconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;result &gt;= 0&lt;/code&gt;
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     *
+     * @see nanoxml.XmlElement#addChild(nanoxml.XmlElement)
+     *         addChild(XmlElement)
+     * @see nanoxml.XmlElement#enumerateChildren()
+     * @see nanoxml.XmlElement#getChildren()
+     * @see nanoxml.XmlElement#removeChild(nanoxml.XmlElement)
+     *         removeChild(XmlElement)
+     */
+    public int getChildrenCount() {
+<span class="fc" id="L532">        return this.children.size();</span>
+    }
+    
+    /**
+     * 
+     * @param index
+     * @return 
+     */
+    public XmlElement getChild(int index) {
+<span class="fc" id="L541">        return children.get(index);</span>
+    }
+    
+    /**
+     * 
+     * @param name
+     * @return 
+     */
+    public XmlElement getChild(String name) {
+<span class="fc bfc" id="L550" title="All 2 branches covered.">        for (XmlElement elt : children) {</span>
+<span class="fc bfc" id="L551" title="All 2 branches covered.">            if (name.equals(elt.getName())) {</span>
+<span class="fc" id="L552">                return elt;</span>
+            }
+<span class="fc" id="L554">        }</span>
+<span class="fc" id="L555">        return null;</span>
+    }
+    
+    /**
+     * Returns the child elements as a List.
+     *
+     * &lt;dl&gt;&lt;dt&gt;&lt;b&gt;Postconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;result != null&lt;/code&gt;
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     *
+     * @see nanoxml.XmlElement#addChild(nanoxml.XmlElement)
+     *         addChild(XmlElement)
+     * @see nanoxml.XmlElement#countChildren()
+     * @see nanoxml.XmlElement#enumerateChildren()
+     * @see nanoxml.XmlElement#removeChild(nanoxml.XmlElement)
+     *         removeChild(XmlElement)
+     */
+    public List&lt;XmlElement&gt; getChildren() {
+<span class="fc" id="L573">        return children;</span>
+    }
+    
+    /**
+     * 
+     * @param name
+     * @return 
+     */
+    public List&lt;XmlElement&gt; getChildren(String name) {
+<span class="fc" id="L582">        ArrayList&lt;XmlElement&gt; list = new ArrayList&lt;XmlElement&gt;();</span>
+<span class="fc bfc" id="L583" title="All 2 branches covered.">        for (XmlElement elt : children) {</span>
+<span class="fc bfc" id="L584" title="All 2 branches covered.">            if (name.equals(elt.getName())) {</span>
+<span class="fc" id="L585">                list.add(elt);</span>
+            }
+<span class="fc" id="L587">        }</span>
+<span class="fc" id="L588">        return list;</span>
+    }
+    
+    /**
+     * Returns the line nr in the source data on which the element is found.
+     * This method returns &lt;code&gt;0&lt;/code&gt; there is no associated source data.
+     *
+     * &lt;dl&gt;&lt;dt&gt;&lt;b&gt;Postconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;result &gt;= 0&lt;/code&gt;
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     */
+    public int getLineNr() {
+<span class="fc" id="L600">        return this.lineNr;</span>
+    }
+            
+    /**
+     * Returns the PCDATA content of the object. If there is no such content,
+     * &lt;CODE&gt;null&lt;/CODE&gt; is returned.
+     *
+     * @see nanoxml.XmlElement#setContent(java.lang.String)
+     *         setContent(String)
+     */
+    public String getContent() {
+<span class="fc" id="L611">        return content;</span>
+    }
+        
+    /**
+     * Changes the content string.
+     *
+     * @param content
+     *     The new content string.
+     */
+    public void setContent(String content) {
+<span class="fc" id="L621">        this.content = content;</span>
+<span class="fc" id="L622">    }</span>
+    
+    /**
+     * Adds or modifies an attribute.
+     *
+     * @param name
+     *     The name of the attribute.
+     * @param value
+     *     The value of the attribute.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;name != null&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;name&lt;/code&gt; is a valid XML identifier
+     *     &lt;li&gt;&lt;code&gt;value != null&lt;/code&gt;
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     *
+     * &lt;dl&gt;&lt;dt&gt;&lt;b&gt;Postconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;enumerateAttributeNames()
+     *         =&gt; old.enumerateAttributeNames() + name
+     *     &lt;li&gt;getAttribute(name) =&gt; value
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;&lt;dl&gt;
+     *
+     * @see nanoxml.XmlElement#setDoubleAttribute(java.lang.String, double)
+     *         setDoubleAttribute(String, double)
+     * @see nanoxml.XmlElement#setIntAttribute(java.lang.String, int)
+     *         setIntAttribute(String, int)
+     * @see nanoxml.XmlElement#enumerateAttributeNames()
+     * @see nanoxml.XmlElement#getAttribute(java.lang.String)
+     *         getAttribute(String)
+     * @see nanoxml.XmlElement#getAttribute(java.lang.String, java.lang.Object)
+     *         getAttribute(String, Object)
+     * @see nanoxml.XmlElement#getAttribute(java.lang.String,
+     *                                      java.util.Hashtable,
+     *                                      java.lang.String, boolean)
+     *         getAttribute(String, Hashtable, String, boolean)
+     * @see nanoxml.XmlElement#getStringAttribute(java.lang.String)
+     *         getStringAttribute(String)
+     * @see nanoxml.XmlElement#getStringAttribute(java.lang.String,
+     *                                            java.lang.String)
+     *         getStringAttribute(String, String)
+     * @see nanoxml.XmlElement#getStringAttribute(java.lang.String,
+     *                                            java.util.Hashtable,
+     *                                            java.lang.String, boolean)
+     *         getStringAttribute(String, Hashtable, String, boolean)
+     */
+    public void setAttribute(String name, Object value) {
+<span class="fc" id="L668">        this.attributes.put(name, value.toString());</span>
+<span class="fc" id="L669">    }</span>
+    
+    /**
+     * Removes an attribute.
+     *
+     * @param name
+     *     The name of the attribute.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;name != null&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;name&lt;/code&gt; is a valid XML identifier
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     *
+     * &lt;dl&gt;&lt;dt&gt;&lt;b&gt;Postconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;enumerateAttributeNames()
+     *         =&gt; old.enumerateAttributeNames() - name
+     *     &lt;li&gt;getAttribute(name) =&gt; &lt;code&gt;null&lt;/code&gt;
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;&lt;dl&gt;
+     *
+     * @see nanoxml.XmlElement#enumerateAttributeNames()
+     * @see nanoxml.XmlElement#setDoubleAttribute(java.lang.String, double)
+     *         setDoubleAttribute(String, double)
+     * @see nanoxml.XmlElement#setIntAttribute(java.lang.String, int)
+     *         setIntAttribute(String, int)
+     * @see nanoxml.XmlElement#setAttribute(java.lang.String, java.lang.Object)
+     *         setAttribute(String, Object)
+     * @see nanoxml.XmlElement#getAttribute(java.lang.String)
+     *         getAttribute(String)
+     * @see nanoxml.XmlElement#getAttribute(java.lang.String, java.lang.Object)
+     *         getAttribute(String, Object)
+     * @see nanoxml.XmlElement#getAttribute(java.lang.String,
+     *                                      java.util.Hashtable,
+     *                                      java.lang.String, boolean)
+     *         getAttribute(String, Hashtable, String, boolean)
+     * @see nanoxml.XmlElement#getStringAttribute(java.lang.String)
+     *         getStringAttribute(String)
+     * @see nanoxml.XmlElement#getStringAttribute(java.lang.String,
+     *                                            java.lang.String)
+     *         getStringAttribute(String, String)
+     * @see nanoxml.XmlElement#getStringAttribute(java.lang.String,
+     *                                            java.util.Hashtable,
+     *                                            java.lang.String, boolean)
+     *         getStringAttribute(String, Hashtable, String, boolean)
+     * @see nanoxml.XmlElement#getIntAttribute(java.lang.String)
+     *         getIntAttribute(String)
+     * @see nanoxml.XmlElement#getIntAttribute(java.lang.String, int)
+     *         getIntAttribute(String, int)
+     * @see nanoxml.XmlElement#getIntAttribute(java.lang.String,
+     *                                         java.util.Hashtable,
+     *                                         java.lang.String, boolean)
+     *         getIntAttribute(String, Hashtable, String, boolean)
+     * @see nanoxml.XmlElement#getDoubleAttribute(java.lang.String)
+     *         getDoubleAttribute(String)
+     * @see nanoxml.XmlElement#getDoubleAttribute(java.lang.String, double)
+     *         getDoubleAttribute(String, double)
+     * @see nanoxml.XmlElement#getDoubleAttribute(java.lang.String,
+     *                                            java.util.Hashtable,
+     *                                            java.lang.String, boolean)
+     *         getDoubleAttribute(String, Hashtable, String, boolean)
+     * @see nanoxml.XmlElement#getBooleanAttribute(java.lang.String,
+     *                                             java.lang.String,
+     *                                             java.lang.String, boolean)
+     *         getBooleanAttribute(String, String, String, boolean)
+     */
+    public void removeAttribute(String name) {
+<span class="fc" id="L734">        this.attributes.remove(name);</span>
+<span class="fc" id="L735">    }</span>
+    
+    /**
+     * Get the attribute names.
+     *
+     * &lt;dl&gt;&lt;dt&gt;&lt;b&gt;Postconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;result != null&lt;/code&gt;
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     *
+     * @see nanoxml.XmlElement#setDoubleAttribute(java.lang.String, double)
+     *         setDoubleAttribute(String, double)
+     * @see nanoxml.XmlElement#setIntAttribute(java.lang.String, int)
+     *         setIntAttribute(String, int)
+     * @see nanoxml.XmlElement#setAttribute(java.lang.String, java.lang.Object)
+     *         setAttribute(String, Object)
+     * @see nanoxml.XmlElement#removeAttribute(java.lang.String)
+     *         removeAttribute(String)
+     * @see nanoxml.XmlElement#getAttribute(java.lang.String)
+     *         getAttribute(String)
+     * @see nanoxml.XmlElement#getAttribute(java.lang.String, java.lang.Object)
+     *         getAttribute(String, String)
+     * @see nanoxml.XmlElement#getAttribute(java.lang.String,
+     *                                      java.util.Hashtable,
+     *                                      java.lang.String, boolean)
+     *         getAttribute(String, Hashtable, String, boolean)
+     * @see nanoxml.XmlElement#getStringAttribute(java.lang.String)
+     *         getStringAttribute(String)
+     * @see nanoxml.XmlElement#getStringAttribute(java.lang.String,
+     *                                            java.lang.String)
+     *         getStringAttribute(String, String)
+     * @see nanoxml.XmlElement#getStringAttribute(java.lang.String,
+     *                                            java.util.Hashtable,
+     *                                            java.lang.String, boolean)
+     *         getStringAttribute(String, Hashtable, String, boolean)
+     * @see nanoxml.XmlElement#getIntAttribute(java.lang.String)
+     *         getIntAttribute(String)
+     * @see nanoxml.XmlElement#getIntAttribute(java.lang.String, int)
+     *         getIntAttribute(String, int)
+     * @see nanoxml.XmlElement#getIntAttribute(java.lang.String,
+     *                                         java.util.Hashtable,
+     *                                         java.lang.String, boolean)
+     *         getIntAttribute(String, Hashtable, String, boolean)
+     * @see nanoxml.XmlElement#getDoubleAttribute(java.lang.String)
+     *         getDoubleAttribute(String)
+     * @see nanoxml.XmlElement#getDoubleAttribute(java.lang.String, double)
+     *         getDoubleAttribute(String, double)
+     * @see nanoxml.XmlElement#getDoubleAttribute(java.lang.String,
+     *                                            java.util.Hashtable,
+     *                                            java.lang.String, boolean)
+     *         getDoubleAttribute(String, Hashtable, String, boolean)
+     * @see nanoxml.XmlElement#getBooleanAttribute(java.lang.String,
+     *                                             java.lang.String,
+     *                                             java.lang.String, boolean)
+     *         getBooleanAttribute(String, String, String, boolean)
+     */
+    public Set&lt;String&gt; getAttributeNames() {
+<span class="fc" id="L791">        return attributes.keySet();</span>
+    }
+
+    /**
+     * Returns an attribute of the element.
+     * If the attribute doesn't exist, &lt;code&gt;null&lt;/code&gt; is returned.
+     *
+     * @param name The name of the attribute.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;name != null&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;name&lt;/code&gt; is a valid XML identifier
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;&lt;dl&gt;
+     *
+     * @see nanoxml.XmlElement#setAttribute(java.lang.String, java.lang.Object)
+     *         setAttribute(String, Object)
+     * @see nanoxml.XmlElement#removeAttribute(java.lang.String)
+     *         removeAttribute(String)
+     * @see nanoxml.XmlElement#enumerateAttributeNames()
+     * @see nanoxml.XmlElement#getAttribute(java.lang.String, java.lang.Object)
+     *         getAttribute(String, Object)
+     * @see nanoxml.XmlElement#getAttribute(java.lang.String,
+     *                                      java.util.Hashtable,
+     *                                      java.lang.String, boolean)
+     *         getAttribute(String, Hashtable, String, boolean)
+     */
+    public Object getAttribute(String name) {
+<span class="fc" id="L818">        return this.getAttribute(name, null);</span>
+    }
+
+    /**
+     * Returns an attribute of the element.
+     * If the attribute doesn't exist, &lt;code&gt;defaultValue&lt;/code&gt; is returned.
+     *
+     * @param name         The name of the attribute.
+     * @param defaultValue Key to use if the attribute is missing.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;name != null&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;name&lt;/code&gt; is a valid XML identifier
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;&lt;dl&gt;
+     *
+     * @see nanoxml.XmlElement#setAttribute(java.lang.String, java.lang.Object)
+     *         setAttribute(String, Object)
+     * @see nanoxml.XmlElement#removeAttribute(java.lang.String)
+     *         removeAttribute(String)
+     * @see nanoxml.XmlElement#enumerateAttributeNames()
+     * @see nanoxml.XmlElement#getAttribute(java.lang.String)
+     *         getAttribute(String)
+     * @see nanoxml.XmlElement#getAttribute(java.lang.String,
+     *                                      java.util.Hashtable,
+     *                                      java.lang.String, boolean)
+     *         getAttribute(String, Hashtable, String, boolean)
+     */
+    public Object getAttribute(String name, Object defaultValue) {
+<span class="fc" id="L846">        Object value = this.attributes.get(name);</span>
+<span class="fc bfc" id="L847" title="All 2 branches covered.">        if (value == null) {</span>
+<span class="fc" id="L848">            value = defaultValue;</span>
+        }
+<span class="fc" id="L850">        return value;</span>
+    }
+
+    /**
+     * Returns an attribute of the element.
+     * If the attribute doesn't exist, &lt;code&gt;0&lt;/code&gt; is returned.
+     *
+     * @param name The name of the attribute.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;name != null&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;name&lt;/code&gt; is a valid XML identifier
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;&lt;dl&gt;
+     *
+     * @see nanoxml.XmlElement#setIntAttribute(java.lang.String, int)
+     *         setIntAttribute(String, int)
+     * @see nanoxml.XmlElement#enumerateAttributeNames()
+     * @see nanoxml.XmlElement#getIntAttribute(java.lang.String, int)
+     *         getIntAttribute(String, int)
+     * @see nanoxml.XmlElement#getIntAttribute(java.lang.String,
+     *                                         java.util.Hashtable,
+     *                                         java.lang.String, boolean)
+     *         getIntAttribute(String, Hashtable, String, boolean)
+     */
+    public int getIntAttribute(String name) {
+<span class="fc" id="L875">        return this.getIntAttribute(name, 0);</span>
+    }
+
+    /**
+     * Returns an attribute of the element.
+     * If the attribute doesn't exist, &lt;code&gt;defaultValue&lt;/code&gt; is returned.
+     *
+     * @param name         The name of the attribute.
+     * @param defaultValue Key to use if the attribute is missing.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;name != null&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;name&lt;/code&gt; is a valid XML identifier
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;&lt;dl&gt;
+     *
+     * @see nanoxml.XmlElement#setIntAttribute(java.lang.String, int)
+     *         setIntAttribute(String, int)
+     * @see nanoxml.XmlElement#enumerateAttributeNames()
+     * @see nanoxml.XmlElement#getIntAttribute(java.lang.String)
+     *         getIntAttribute(String)
+     * @see nanoxml.XmlElement#getIntAttribute(java.lang.String,
+     *                                         java.util.Hashtable,
+     *                                         java.lang.String, boolean)
+     *         getIntAttribute(String, Hashtable, String, boolean)
+     */
+    public int getIntAttribute(String name, int defaultValue) {
+<span class="fc" id="L901">        String value = attributes.get(name);</span>
+<span class="fc bfc" id="L902" title="All 2 branches covered.">        if (value == null) {</span>
+<span class="fc" id="L903">            return defaultValue;</span>
+        } else {
+            try {
+<span class="fc" id="L906">                return Integer.parseInt(value);</span>
+<span class="fc" id="L907">            } catch (NumberFormatException e) {</span>
+<span class="fc" id="L908">                throw this.invalidValue(name, value);</span>
+            }
+        }
+    }
+
+    /**
+     * Adds or modifies an attribute.
+     *
+     * @param name
+     *     The name of the attribute.
+     * @param value
+     *     The value of the attribute.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;name != null&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;name&lt;/code&gt; is a valid XML identifier
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     *
+     * &lt;dl&gt;&lt;dt&gt;&lt;b&gt;Postconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;enumerateAttributeNames()
+     *         =&gt; old.enumerateAttributeNames() + name
+     *     &lt;li&gt;getIntAttribute(name) =&gt; value
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;&lt;dl&gt;
+     *
+     * @see nanoxml.XmlElement#setDoubleAttribute(java.lang.String, double)
+     *         setDoubleAttribute(String, double)
+     * @see nanoxml.XmlElement#setAttribute(java.lang.String, java.lang.Object)
+     *         setAttribute(String, Object)
+     * @see nanoxml.XmlElement#removeAttribute(java.lang.String)
+     *         removeAttribute(String)
+     * @see nanoxml.XmlElement#enumerateAttributeNames()
+     * @see nanoxml.XmlElement#getIntAttribute(java.lang.String)
+     *         getIntAttribute(String)
+     * @see nanoxml.XmlElement#getIntAttribute(java.lang.String, int)
+     *         getIntAttribute(String, int)
+     * @see nanoxml.XmlElement#getIntAttribute(java.lang.String,
+     *                                         java.util.Hashtable,
+     *                                         java.lang.String, boolean)
+     *         getIntAttribute(String, Hashtable, String, boolean)
+     */
+    public void setIntAttribute(String name, int value) {
+<span class="fc" id="L949">        this.attributes.put(name, Integer.toString(value));</span>
+<span class="fc" id="L950">    }</span>
+    
+    /**
+     * Returns an attribute of the element.
+     * If the attribute doesn't exist, &lt;code&gt;0&lt;/code&gt; is returned.
+     *
+     * @param name The name of the attribute.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;name != null&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;name&lt;/code&gt; is a valid XML identifier
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;&lt;dl&gt;
+     *
+     * @see nanoxml.XmlElement#setIntAttribute(java.lang.String, int)
+     *         setIntAttribute(String, int)
+     * @see nanoxml.XmlElement#enumerateAttributeNames()
+     * @see nanoxml.XmlElement#getIntAttribute(java.lang.String, int)
+     *         getIntAttribute(String, int)
+     * @see nanoxml.XmlElement#getIntAttribute(java.lang.String,
+     *                                         java.util.Hashtable,
+     *                                         java.lang.String, boolean)
+     *         getIntAttribute(String, Hashtable, String, boolean)
+     */
+    public long getLongAttribute(String name) {
+<span class="fc" id="L974">        return this.getLongAttribute(name, 0);</span>
+    }
+
+    /**
+     * Returns an attribute of the element.
+     * If the attribute doesn't exist, &lt;code&gt;defaultValue&lt;/code&gt; is returned.
+     *
+     * @param name         The name of the attribute.
+     * @param defaultValue Key to use if the attribute is missing.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;name != null&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;name&lt;/code&gt; is a valid XML identifier
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;&lt;dl&gt;
+     *
+     * @see nanoxml.XmlElement#setIntAttribute(java.lang.String, int)
+     *         setIntAttribute(String, int)
+     * @see nanoxml.XmlElement#enumerateAttributeNames()
+     * @see nanoxml.XmlElement#getIntAttribute(java.lang.String)
+     *         getIntAttribute(String)
+     * @see nanoxml.XmlElement#getIntAttribute(java.lang.String,
+     *                                         java.util.Hashtable,
+     *                                         java.lang.String, boolean)
+     *         getIntAttribute(String, Hashtable, String, boolean)
+     */
+    public long getLongAttribute(String name, long defaultValue) {
+<span class="fc" id="L1000">        String value = attributes.get(name);</span>
+<span class="fc bfc" id="L1001" title="All 2 branches covered.">        if (value == null) {</span>
+<span class="fc" id="L1002">            return defaultValue;</span>
+        } else {
+            try {
+<span class="fc" id="L1005">                return Long.parseLong(value);</span>
+<span class="fc" id="L1006">            } catch (NumberFormatException e) {</span>
+<span class="fc" id="L1007">                throw this.invalidValue(name, value);</span>
+            }
+        }
+    }
+
+    /**
+     * Adds or modifies an attribute.
+     *
+     * @param name
+     *     The name of the attribute.
+     * @param value
+     *     The value of the attribute.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;name != null&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;name&lt;/code&gt; is a valid XML identifier
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     *
+     * &lt;dl&gt;&lt;dt&gt;&lt;b&gt;Postconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;enumerateAttributeNames()
+     *         =&gt; old.enumerateAttributeNames() + name
+     *     &lt;li&gt;getIntAttribute(name) =&gt; value
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;&lt;dl&gt;
+     *
+     * @see nanoxml.XmlElement#setDoubleAttribute(java.lang.String, double)
+     *         setDoubleAttribute(String, double)
+     * @see nanoxml.XmlElement#setAttribute(java.lang.String, java.lang.Object)
+     *         setAttribute(String, Object)
+     * @see nanoxml.XmlElement#removeAttribute(java.lang.String)
+     *         removeAttribute(String)
+     * @see nanoxml.XmlElement#enumerateAttributeNames()
+     * @see nanoxml.XmlElement#getIntAttribute(java.lang.String)
+     *         getIntAttribute(String)
+     * @see nanoxml.XmlElement#getIntAttribute(java.lang.String, int)
+     *         getIntAttribute(String, int)
+     * @see nanoxml.XmlElement#getIntAttribute(java.lang.String,
+     *                                         java.util.Hashtable,
+     *                                         java.lang.String, boolean)
+     *         getIntAttribute(String, Hashtable, String, boolean)
+     */
+    public void setLongAttribute(String name, long value) {
+<span class="fc" id="L1048">        this.attributes.put(name, Long.toString(value));</span>
+<span class="fc" id="L1049">    }</span>
+    
+    /**
+     * Returns an attribute of the element.
+     * If the attribute doesn't exist, &lt;code&gt;null&lt;/code&gt; is returned.
+     *
+     * @param name The name of the attribute.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;name != null&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;name&lt;/code&gt; is a valid XML identifier
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;&lt;dl&gt;
+     *
+     * @see nanoxml.XmlElement#setAttribute(java.lang.String, java.lang.Object)
+     *         setAttribute(String, Object)
+     * @see nanoxml.XmlElement#removeAttribute(java.lang.String)
+     *         removeAttribute(String)
+     * @see nanoxml.XmlElement#enumerateAttributeNames()
+     * @see nanoxml.XmlElement#getStringAttribute(java.lang.String,
+     *                                            java.lang.String)
+     *         getStringAttribute(String, String)
+     * @see nanoxml.XmlElement#getStringAttribute(java.lang.String,
+     *                                            java.util.Hashtable,
+     *                                            java.lang.String, boolean)
+     *         getStringAttribute(String, Hashtable, String, boolean)
+     */
+    public String getStringAttribute(String name) {
+<span class="fc" id="L1076">        return this.getStringAttribute(name, null);</span>
+    }
+
+    /**
+     * Returns an attribute of the element.
+     * If the attribute doesn't exist, &lt;code&gt;defaultValue&lt;/code&gt; is returned.
+     *
+     * @param name         The name of the attribute.
+     * @param defaultValue Key to use if the attribute is missing.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;name != null&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;name&lt;/code&gt; is a valid XML identifier
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;&lt;dl&gt;
+     *
+     * @see nanoxml.XmlElement#setAttribute(java.lang.String, java.lang.Object)
+     *         setAttribute(String, Object)
+     * @see nanoxml.XmlElement#removeAttribute(java.lang.String)
+     *         removeAttribute(String)
+     * @see nanoxml.XmlElement#enumerateAttributeNames()
+     * @see nanoxml.XmlElement#getStringAttribute(java.lang.String)
+     *         getStringAttribute(String)
+     * @see nanoxml.XmlElement#getStringAttribute(java.lang.String,
+     *                                            java.util.Hashtable,
+     *                                            java.lang.String, boolean)
+     *         getStringAttribute(String, Hashtable, String, boolean)
+     */
+    public String getStringAttribute(String name, String defaultValue) {
+<span class="fc" id="L1104">        return (String) this.getAttribute(name, defaultValue);</span>
+    }
+
+    /**
+     * Returns an attribute of the element.
+     * If the attribute doesn't exist, &lt;code&gt;0.0&lt;/code&gt; is returned.
+     *
+     * @param name The name of the attribute.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;name != null&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;name&lt;/code&gt; is a valid XML identifier
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;&lt;dl&gt;
+     *
+     * @see nanoxml.XmlElement#setDoubleAttribute(java.lang.String, double)
+     *         setDoubleAttribute(String, double)
+     * @see nanoxml.XmlElement#enumerateAttributeNames()
+     * @see nanoxml.XmlElement#getDoubleAttribute(java.lang.String, double)
+     *         getDoubleAttribute(String, double)
+     * @see nanoxml.XmlElement#getDoubleAttribute(java.lang.String,
+     *                                            java.util.Hashtable,
+     *                                            java.lang.String, boolean)
+     *         getDoubleAttribute(String, Hashtable, String, boolean)
+     */
+    public double getDoubleAttribute(String name) {
+<span class="fc" id="L1129">        return this.getDoubleAttribute(name, 0.);</span>
+    }
+
+    /**
+     * Returns an attribute of the element.
+     * If the attribute doesn't exist, &lt;code&gt;defaultValue&lt;/code&gt; is returned.
+     *
+     * @param name         The name of the attribute.
+     * @param defaultValue Key to use if the attribute is missing.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;name != null&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;name&lt;/code&gt; is a valid XML identifier
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;&lt;dl&gt;
+     *
+     * @see nanoxml.XmlElement#setDoubleAttribute(java.lang.String, double)
+     *         setDoubleAttribute(String, double)
+     * @see nanoxml.XmlElement#enumerateAttributeNames()
+     * @see nanoxml.XmlElement#getDoubleAttribute(java.lang.String)
+     *         getDoubleAttribute(String)
+     * @see nanoxml.XmlElement#getDoubleAttribute(java.lang.String,
+     *                                            java.util.Hashtable,
+     *                                            java.lang.String, boolean)
+     *         getDoubleAttribute(String, Hashtable, String, boolean)
+     */
+    public double getDoubleAttribute(String name, double defaultValue) {
+<span class="fc" id="L1155">        String value = attributes.get(name);</span>
+<span class="fc bfc" id="L1156" title="All 2 branches covered.">        if (value == null) {</span>
+<span class="fc" id="L1157">            return defaultValue;</span>
+        } else {
+            try {
+<span class="fc" id="L1160">                return Double.valueOf(value).doubleValue();</span>
+<span class="fc" id="L1161">            } catch (NumberFormatException e) {</span>
+<span class="fc" id="L1162">                throw this.invalidValue(name, value);</span>
+            }
+        }
+    }
+    
+    /**
+     * Adds or modifies an attribute.
+     *
+     * @param name
+     *     The name of the attribute.
+     * @param value
+     *     The value of the attribute.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;name != null&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;name&lt;/code&gt; is a valid XML identifier
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     *
+     * &lt;dl&gt;&lt;dt&gt;&lt;b&gt;Postconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;enumerateAttributeNames()
+     *         =&gt; old.enumerateAttributeNames() + name
+     *     &lt;li&gt;getDoubleAttribute(name) =&gt; value
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;&lt;dl&gt;
+     *
+     * @see nanoxml.XmlElement#setIntAttribute(java.lang.String, int)
+     *         setIntAttribute(String, int)
+     * @see nanoxml.XmlElement#setAttribute(java.lang.String, java.lang.Object)
+     *         setAttribute(String, Object)
+     * @see nanoxml.XmlElement#removeAttribute(java.lang.String)
+     *         removeAttribute(String)
+     * @see nanoxml.XmlElement#enumerateAttributeNames()
+     * @see nanoxml.XmlElement#getDoubleAttribute(java.lang.String)
+     *         getDoubleAttribute(String)
+     * @see nanoxml.XmlElement#getDoubleAttribute(java.lang.String, double)
+     *         getDoubleAttribute(String, double)
+     * @see nanoxml.XmlElement#getDoubleAttribute(java.lang.String,
+     *                                            java.util.Hashtable,
+     *                                            java.lang.String, boolean)
+     *         getDoubleAttribute(String, Hashtable, String, boolean)
+     */
+    public void setDoubleAttribute(String name, double value) {
+<span class="fc" id="L1203">        this.attributes.put(name, Double.toString(value));</span>
+<span class="fc" id="L1204">    }</span>
+
+    /**
+     * Returns an attribute of the element.
+     * If the attribute doesn't exist, &lt;code&gt;defaultValue&lt;/code&gt; is returned.
+     * If the value of the attribute is equal to &lt;code&gt;trueValue&lt;/code&gt;,
+     * &lt;code&gt;true&lt;/code&gt; is returned.
+     * If the value of the attribute is equal to &lt;code&gt;falseValue&lt;/code&gt;,
+     * &lt;code&gt;false&lt;/code&gt; is returned.
+     * If the value doesn't match &lt;code&gt;trueValue&lt;/code&gt; or
+     * &lt;code&gt;falseValue&lt;/code&gt;, an exception is thrown.
+     *
+     * @param name         The name of the attribute.
+     * @param trueValue    The value associated with &lt;code&gt;true&lt;/code&gt;.
+     * @param falseValue   The value associated with &lt;code&gt;true&lt;/code&gt;.
+     * @param defaultValue Value to use if the attribute is missing.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;name != null&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;name&lt;/code&gt; is a valid XML identifier
+     *     &lt;li&gt;&lt;code&gt;trueValue&lt;/code&gt; and &lt;code&gt;falseValue&lt;/code&gt;
+     *         are different strings.
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;&lt;dl&gt;
+     *
+     * @see nanoxml.XmlElement#setAttribute(java.lang.String, java.lang.Object)
+     *         setAttribute(String, Object)
+     * @see nanoxml.XmlElement#removeAttribute(java.lang.String)
+     *         removeAttribute(String)
+     * @see nanoxml.XmlElement#enumerateAttributeNames()
+     */
+    public boolean getBooleanAttribute(String name,
+            String trueValue,
+            String falseValue,
+            boolean defaultValue) {
+<span class="fc" id="L1238">        Object value = this.attributes.get(name);</span>
+<span class="fc bfc" id="L1239" title="All 2 branches covered.">        if (value == null) {</span>
+<span class="fc" id="L1240">            return defaultValue;</span>
+<span class="pc bpc" id="L1241" title="1 of 2 branches missed.">        } else if (value.equals(trueValue)) {</span>
+<span class="fc" id="L1242">            return true;</span>
+<span class="nc bnc" id="L1243" title="All 2 branches missed.">        } else if (value.equals(falseValue)) {</span>
+<span class="nc" id="L1244">            return false;</span>
+        } else {
+<span class="nc" id="L1246">            throw this.invalidValue(name, (String) value);</span>
+        }
+    }
+
+    /**
+     * Reads one XML element from a java.io.Reader and parses it.
+     *
+     * @param reader
+     *     The reader from which to retrieve the XML data.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;reader != null&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;reader&lt;/code&gt; is not closed
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     *
+     * &lt;dl&gt;&lt;dt&gt;&lt;b&gt;Postconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;the state of the receiver is updated to reflect the XML element
+     *         parsed from the reader
+     *     &lt;li&gt;the reader points to the first character following the last
+     *         '&amp;gt;' character of the XML element
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;&lt;dl&gt;
+     *
+     * @throws java.io.IOException
+     *     If an error occured while reading the input.
+     * @throws nanoxml.XmlParseException
+     *     If an error occured while parsing the read data.
+     */
+    public void parseFromReader(Reader reader) throws IOException, XmlParseException {
+<span class="fc" id="L1274">        this.parseFromReader(reader, /*startingLineNr*/ 1);</span>
+<span class="fc" id="L1275">    }</span>
+
+    /**
+     * Reads one XML element from a java.io.Reader and parses it.
+     *
+     * @param reader
+     *     The reader from which to retrieve the XML data.
+     * @param startingLineNr
+     *     The line number of the first line in the data.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;reader != null&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;reader&lt;/code&gt; is not closed
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     *
+     * &lt;dl&gt;&lt;dt&gt;&lt;b&gt;Postconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;the state of the receiver is updated to reflect the XML element
+     *         parsed from the reader
+     *     &lt;li&gt;the reader points to the first character following the last
+     *         '&amp;gt;' character of the XML element
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;&lt;dl&gt;
+     *
+     * @throws java.io.IOException
+     *     If an error occured while reading the input.
+     * @throws nanoxml.XmlParseException
+     *     If an error occured while parsing the read data.
+     */
+    public void parseFromReader(Reader reader, int startingLineNr)
+            throws IOException, XmlParseException {
+<span class="fc" id="L1304">        this.name = null;</span>
+<span class="fc" id="L1305">        this.content = &quot;&quot;;</span>
+<span class="fc" id="L1306">        this.attributes = new LinkedHashMap&lt;String, String&gt;();</span>
+<span class="fc" id="L1307">        this.children = new ArrayList&lt;XmlElement&gt;();</span>
+<span class="fc" id="L1308">        this.charReadTooMuch = '\0';</span>
+<span class="fc" id="L1309">        this.reader = reader;</span>
+<span class="fc" id="L1310">        this.parserLineNr = startingLineNr;</span>
+
+        for (;;) {
+<span class="fc" id="L1313">            char ch = this.scanWhitespace();</span>
+
+<span class="fc bfc" id="L1315" title="All 2 branches covered.">            if (ch != '&lt;') {</span>
+<span class="fc" id="L1316">                throw this.expectedInput(&quot;&lt;&quot;);</span>
+            }
+
+<span class="fc" id="L1319">            ch = this.readChar();</span>
+
+<span class="fc bfc" id="L1321" title="All 4 branches covered.">            if ((ch == '!') || (ch == '?')) {</span>
+<span class="fc" id="L1322">                this.skipSpecialTag(0);</span>
+            } else {
+<span class="fc" id="L1324">                this.unreadChar(ch);</span>
+<span class="fc" id="L1325">                this.scanElement(this);</span>
+<span class="fc" id="L1326">                return;</span>
+            }
+<span class="fc" id="L1328">        }</span>
+    }
+
+    /**
+     * Reads one XML element from a String and parses it.
+     *
+     * @param reader
+     *     The reader from which to retrieve the XML data.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;string != null&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;string.length() &amp;gt; 0&lt;/code&gt;
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     *
+     * &lt;dl&gt;&lt;dt&gt;&lt;b&gt;Postconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;the state of the receiver is updated to reflect the XML element
+     *         parsed from the reader
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;&lt;dl&gt;
+     *
+     * @throws nanoxml.XmlParseException
+     *     If an error occured while parsing the string.
+     */
+    public void parseString(String string) throws XmlParseException {
+        try {
+<span class="fc" id="L1352">            this.parseFromReader(new StringReader(string),</span>
+                    /*startingLineNr*/ 1);
+<span class="nc" id="L1354">        } catch (IOException e) {</span>
+            // Java exception handling suxx
+<span class="fc" id="L1356">        }</span>
+<span class="fc" id="L1357">    }</span>
+
+    /**
+     * Reads one XML element from a String and parses it.
+     *
+     * @param reader
+     *     The reader from which to retrieve the XML data.
+     * @param offset
+     *     The first character in &lt;code&gt;string&lt;/code&gt; to scan.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;string != null&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;offset &amp;lt; string.length()&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;offset &amp;gt;= 0&lt;/code&gt;
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     *
+     * &lt;dl&gt;&lt;dt&gt;&lt;b&gt;Postconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;the state of the receiver is updated to reflect the XML element
+     *         parsed from the reader
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;&lt;dl&gt;
+     *
+     * @throws nanoxml.XmlParseException
+     *     If an error occured while parsing the string.
+     */
+    public void parseString(String string, int offset) throws XmlParseException {
+<span class="fc" id="L1382">        this.parseString(string.substring(offset));</span>
+<span class="fc" id="L1383">    }</span>
+
+    /**
+     * Reads one XML element from a String and parses it.
+     *
+     * @param reader
+     *     The reader from which to retrieve the XML data.
+     * @param offset
+     *     The first character in &lt;code&gt;string&lt;/code&gt; to scan.
+     * @param end
+     *     The character where to stop scanning.
+     *     This character is not scanned.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;string != null&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;end &amp;lt;= string.length()&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;offset &amp;lt; end&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;offset &amp;gt;= 0&lt;/code&gt;
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     *
+     * &lt;dl&gt;&lt;dt&gt;&lt;b&gt;Postconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;the state of the receiver is updated to reflect the XML element
+     *         parsed from the reader
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;&lt;dl&gt;
+     *
+     * @throws nanoxml.XmlParseException
+     *     If an error occured while parsing the string.
+     */
+    public void parseString(String string, int offset, int end)
+            throws XmlParseException {
+<span class="fc" id="L1413">        this.parseString(string.substring(offset, end));</span>
+<span class="fc" id="L1414">    }</span>
+
+    /**
+     * Reads one XML element from a String and parses it.
+     *
+     * @param reader
+     *     The reader from which to retrieve the XML data.
+     * @param offset
+     *     The first character in &lt;code&gt;string&lt;/code&gt; to scan.
+     * @param end
+     *     The character where to stop scanning.
+     *     This character is not scanned.
+     * @param startingLineNr
+     *     The line number of the first line in the data.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;string != null&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;end &amp;lt;= string.length()&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;offset &amp;lt; end&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;offset &amp;gt;= 0&lt;/code&gt;
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     *
+     * &lt;dl&gt;&lt;dt&gt;&lt;b&gt;Postconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;the state of the receiver is updated to reflect the XML element
+     *         parsed from the reader
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;&lt;dl&gt;
+     *
+     * @throws nanoxml.XmlParseException
+     *     If an error occured while parsing the string.
+     */
+    public void parseString(String string,
+            int offset,
+            int end,
+            int startingLineNr)
+            throws XmlParseException {
+        try {
+<span class="fc" id="L1450">            this.parseFromReader(</span>
+<span class="fc" id="L1451">                    new StringReader(string.substring(offset, end)), </span>
+                    startingLineNr);
+<span class="nc" id="L1453">        } catch (IOException e) {</span>
+            // Java exception handling suxx
+<span class="fc" id="L1455">        }</span>
+<span class="fc" id="L1456">    }</span>
+
+    /**
+     * Reads one XML element from a char array and parses it.
+     *
+     * @param reader
+     *     The reader from which to retrieve the XML data.
+     * @param offset
+     *     The first character in &lt;code&gt;string&lt;/code&gt; to scan.
+     * @param end
+     *     The character where to stop scanning.
+     *     This character is not scanned.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;input != null&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;end &amp;lt;= input.length&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;offset &amp;lt; end&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;offset &amp;gt;= 0&lt;/code&gt;
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     *
+     * &lt;dl&gt;&lt;dt&gt;&lt;b&gt;Postconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;the state of the receiver is updated to reflect the XML element
+     *         parsed from the reader
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;&lt;dl&gt;
+     *
+     * @throws nanoxml.XmlParseException
+     *     If an error occured while parsing the string.
+     */
+    public void parseCharArray(char[] input, int offset, int end)
+            throws XmlParseException {
+<span class="fc" id="L1486">        this.parseCharArray(input, offset, end, /*startingLineNr*/ 1);</span>
+<span class="fc" id="L1487">    }</span>
+
+    /**
+     * Reads one XML element from a char array and parses it.
+     *
+     * @param reader
+     *     The reader from which to retrieve the XML data.
+     * @param offset
+     *     The first character in &lt;code&gt;string&lt;/code&gt; to scan.
+     * @param end
+     *     The character where to stop scanning.
+     *     This character is not scanned.
+     * @param startingLineNr
+     *     The line number of the first line in the data.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;input != null&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;end &amp;lt;= input.length&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;offset &amp;lt; end&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;offset &amp;gt;= 0&lt;/code&gt;
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     *
+     * &lt;dl&gt;&lt;dt&gt;&lt;b&gt;Postconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;the state of the receiver is updated to reflect the XML element
+     *         parsed from the reader
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;&lt;dl&gt;
+     *
+     * @throws nanoxml.XmlParseException
+     *     If an error occured while parsing the string.
+     */
+    public void parseCharArray(char[] input, int offset, int end, int startingLineNr)
+            throws XmlParseException {
+        try {
+<span class="fc" id="L1520">            Reader reader0 = new CharArrayReader(input, offset, end);</span>
+<span class="fc" id="L1521">            this.parseFromReader(reader0, startingLineNr);</span>
+<span class="nc" id="L1522">        } catch (IOException e) {</span>
+            // This exception will never happen.
+<span class="fc" id="L1524">        }</span>
+<span class="fc" id="L1525">    }</span>
+
+    /**
+     * Writes the XML element to a writer.
+     *
+     * @param writer
+     *     The writer to write the XML data to.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;writer != null&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;writer&lt;/code&gt; is not closed
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     *
+     * @throws java.io.IOException
+     *      If the data could not be written to the writer.
+     *
+     * @see nanoxml.XmlElement#toString()
+     */
+    public void write(Writer writer) throws IOException {
+<span class="fc" id="L1544">        write(writer, this, false, 0, 0);</span>
+<span class="fc" id="L1545">    }</span>
+    
+    /**
+     * Writes the XML element to a writer.
+     *
+     * @param writer
+     *     The writer to write the XML data to.
+     * @param standalone
+     *     If true then element on a separate line.
+     * @param indent
+     *     How many spaces to indent the element.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;writer != null&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;writer&lt;/code&gt; is not closed
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     *
+     * @throws java.io.IOException
+     *      If the data could not be written to the writer.
+     *
+     * @see nanoxml.XmlElement#toString()
+     */
+    public void write(Writer writer, boolean standalone, int indent)
+            throws IOException {
+<span class="fc" id="L1569">        write(writer, this, standalone, indent, 0);</span>
+<span class="fc" id="L1570">    }</span>
+    
+    /**
+     * Writes the XML element to a writer.
+     *
+     * @param writer
+     *     The writer to write the XML data to.
+     * @param standalone
+     *     If true then element on a separate line.
+     * @param indent
+     *     How many spaces to indent the element.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;writer != null&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;writer&lt;/code&gt; is not closed
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     *
+     * @throws java.io.IOException
+     *      If the data could not be written to the writer.
+     *
+     * @see nanoxml.XmlElement#toString()
+     */
+    public void write(Writer writer, int indent) throws IOException {
+<span class="fc" id="L1593">        write(writer, this, true, indent, 0);</span>
+<span class="fc" id="L1594">    }</span>
+    
+    /**
+     * Writes the XML element to a writer.
+     *
+     * @param writer
+     *     The writer to write the XML data to.
+     * @param standalone
+     * 
+     * @param indent
+     *     How many spaces to indent the element.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;writer != null&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;writer&lt;/code&gt; is not closed
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     *
+     * @throws java.io.IOException
+     *      If the data could not be written to the writer.
+     *
+     * @see nanoxml.XmlElement#toString()
+     */
+    protected static void write(Writer writer, XmlElement element,
+            boolean standalone, int indent, int level) throws IOException {
+<span class="fc bfc" id="L1618" title="All 2 branches covered.">        if (element.getName() == null) {</span>
+<span class="fc" id="L1619">            writeEncoded(writer, element.getContent());</span>
+<span class="fc" id="L1620">            return;</span>
+        }
+        
+<span class="fc bfc" id="L1623" title="All 2 branches covered.">        if (level != 0) {</span>
+<span class="fc bfc" id="L1624" title="All 2 branches covered.">            if (standalone) {</span>
+<span class="fc" id="L1625">                writer.append(LINE_SEPARATOR);</span>
+            }
+<span class="fc bfc" id="L1627" title="All 2 branches covered.">            for (int i = indent * level; i &gt; 0; i--) {</span>
+<span class="fc" id="L1628">                writer.append(' ');</span>
+            }
+        }
+        
+<span class="fc" id="L1632">        writer.write('&lt;');</span>
+<span class="fc" id="L1633">        writer.write(element.getName());</span>
+<span class="fc" id="L1634">        Set&lt;String&gt; attrNames = element.getAttributeNames();</span>
+<span class="fc bfc" id="L1635" title="All 2 branches covered.">        if (! attrNames.isEmpty()) {</span>
+<span class="fc" id="L1636">            Iterator&lt;String&gt; it = attrNames.iterator();</span>
+<span class="fc bfc" id="L1637" title="All 2 branches covered.">            while (it.hasNext()) {</span>
+<span class="fc" id="L1638">                writer.write(' ');</span>
+<span class="fc" id="L1639">                String key = it.next();</span>
+<span class="fc" id="L1640">                String value = element.getStringAttribute(key);</span>
+<span class="fc" id="L1641">                writer.write(key);</span>
+<span class="fc" id="L1642">                writer.write('=');</span>
+<span class="fc" id="L1643">                writer.write('&quot;');</span>
+<span class="fc" id="L1644">                writeEncoded(writer, value);</span>
+<span class="fc" id="L1645">                writer.write('&quot;');</span>
+<span class="fc" id="L1646">            }</span>
+        }
+<span class="pc bpc" id="L1648" title="1 of 4 branches missed.">        if ((element.getContent() != null) &amp;&amp; (!element.getContent().isEmpty())) {</span>
+<span class="fc" id="L1649">            writer.write('&gt;');</span>
+<span class="fc" id="L1650">            writeEncoded(writer, element.getContent());</span>
+<span class="fc" id="L1651">            writer.write('&lt;');</span>
+<span class="fc" id="L1652">            writer.write('/');</span>
+<span class="fc" id="L1653">            writer.write(element.getName());</span>
+<span class="fc" id="L1654">            writer.write('&gt;');</span>
+<span class="fc bfc" id="L1655" title="All 2 branches covered.">        } else if (element.getChildrenCount() == 0) {</span>
+<span class="fc" id="L1656">            writer.write('/');</span>
+<span class="fc" id="L1657">            writer.write('&gt;');</span>
+        } else {
+<span class="fc" id="L1659">            writer.write('&gt;');</span>
+<span class="fc" id="L1660">            Iterator&lt;XmlElement&gt; it = element.getChildren().iterator();</span>
+<span class="fc bfc" id="L1661" title="All 2 branches covered.">            while (it.hasNext()) {</span>
+<span class="fc" id="L1662">                XmlElement child = it.next();</span>
+<span class="fc" id="L1663">                write(writer, child, standalone, indent, level + 1);</span>
+<span class="fc" id="L1664">            }</span>
+            
+<span class="pc bpc" id="L1666" title="1 of 4 branches missed.">            if (standalone || indent != 0) {</span>
+<span class="fc" id="L1667">                writer.append(LINE_SEPARATOR);</span>
+            }
+<span class="fc bfc" id="L1669" title="All 2 branches covered.">            if (level != 0) {</span>
+<span class="fc bfc" id="L1670" title="All 2 branches covered.">                for (int i = indent * level; i &gt; 0; i--) {</span>
+<span class="fc" id="L1671">                    writer.append(' ');</span>
+                }
+            }
+            
+<span class="fc" id="L1675">            writer.write('&lt;');</span>
+<span class="fc" id="L1676">            writer.write('/');</span>
+<span class="fc" id="L1677">            writer.write(element.getName());</span>
+<span class="fc" id="L1678">            writer.write('&gt;');</span>
+        }
+<span class="fc" id="L1680">    }</span>
+
+    /**
+     * Writes a string encoded to a writer.
+     *
+     * @param writer
+     *     The writer to write the XML data to.
+     * @param str
+     *     The string to write encoded.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;writer != null&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;writer&lt;/code&gt; is not closed
+     *     &lt;li&gt;&lt;code&gt;str != null&lt;/code&gt;
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     */
+    protected static void writeEncoded(Writer writer, String str) throws IOException {
+<span class="fc bfc" id="L1697" title="All 2 branches covered.">        for (int i = 0; i &lt; str.length(); i += 1) {</span>
+<span class="fc" id="L1698">            char ch = str.charAt(i);</span>
+<span class="fc bfc" id="L1699" title="All 6 branches covered.">            switch (ch) {</span>
+                case '&lt;':
+<span class="fc" id="L1701">                    writer.write('&amp;');</span>
+<span class="fc" id="L1702">                    writer.write('l');</span>
+<span class="fc" id="L1703">                    writer.write('t');</span>
+<span class="fc" id="L1704">                    writer.write(';');</span>
+<span class="fc" id="L1705">                    break;</span>
+                case '&gt;':
+<span class="fc" id="L1707">                    writer.write('&amp;');</span>
+<span class="fc" id="L1708">                    writer.write('g');</span>
+<span class="fc" id="L1709">                    writer.write('t');</span>
+<span class="fc" id="L1710">                    writer.write(';');</span>
+<span class="fc" id="L1711">                    break;</span>
+                case '&amp;':
+<span class="fc" id="L1713">                    writer.write('&amp;');</span>
+<span class="fc" id="L1714">                    writer.write('a');</span>
+<span class="fc" id="L1715">                    writer.write('m');</span>
+<span class="fc" id="L1716">                    writer.write('p');</span>
+<span class="fc" id="L1717">                    writer.write(';');</span>
+<span class="fc" id="L1718">                    break;</span>
+                case '&quot;':
+<span class="fc" id="L1720">                    writer.write('&amp;');</span>
+<span class="fc" id="L1721">                    writer.write('q');</span>
+<span class="fc" id="L1722">                    writer.write('u');</span>
+<span class="fc" id="L1723">                    writer.write('o');</span>
+<span class="fc" id="L1724">                    writer.write('t');</span>
+<span class="fc" id="L1725">                    writer.write(';');</span>
+<span class="fc" id="L1726">                    break;</span>
+                case '\'':
+<span class="fc" id="L1728">                    writer.write('&amp;');</span>
+<span class="fc" id="L1729">                    writer.write('a');</span>
+<span class="fc" id="L1730">                    writer.write('p');</span>
+<span class="fc" id="L1731">                    writer.write('o');</span>
+<span class="fc" id="L1732">                    writer.write('s');</span>
+<span class="fc" id="L1733">                    writer.write(';');</span>
+<span class="fc" id="L1734">                    break;</span>
+                default:
+<span class="fc" id="L1736">                    writer.write(ch);</span>
+            }
+        }
+<span class="fc" id="L1739">    }</span>
+    
+    /**
+     * Writes the XML element to a string.
+     *
+     * @see nanoxml.XmlElement#write(java.io.Writer) write(Writer)
+     */
+    @Override
+    public String toString() {
+        try {
+<span class="fc" id="L1749">            ByteArrayOutputStream out = new ByteArrayOutputStream();</span>
+<span class="fc" id="L1750">            OutputStreamWriter writer = new OutputStreamWriter(out);</span>
+<span class="fc" id="L1751">            write(writer, 4);</span>
+<span class="fc" id="L1752">            writer.flush();</span>
+<span class="fc" id="L1753">            return new String(out.toByteArray());</span>
+<span class="nc" id="L1754">        } catch (IOException e) {</span>
+            // Java exception handling suxx
+<span class="nc" id="L1756">            return super.toString();</span>
+        }
+    }
+    
+    /**
+     * Creates a new similar XML element.
+     * &lt;P&gt;
+     * You should override this method when subclassing XmlElement.
+     */
+    protected XmlElement createAnotherElement() {
+<span class="fc" id="L1766">        return new XmlElement(entities, ignoreWhitespace, true);</span>
+    }
+    
+    /**
+     * Scans an identifier from the current reader.
+     * The scanned identifier is appended to &lt;code&gt;result&lt;/code&gt;.
+     *
+     * @param result
+     *     The buffer in which the scanned identifier will be put.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;result != null&lt;/code&gt;
+     *     &lt;li&gt;The next character read from the reader is a valid first
+     *         character of an XML identifier.
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     *
+     * &lt;dl&gt;&lt;dt&gt;&lt;b&gt;Postconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;The next character read from the reader won't be an identifier
+     *         character.
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;&lt;dl&gt;
+     */
+    protected void scanIdentifier(StringBuilder result) throws IOException {
+        for (;;) {
+<span class="fc" id="L1789">            char ch = this.readChar();</span>
+<span class="pc bpc" id="L1790" title="5 of 22 branches missed.">            if (((ch &lt; 'A') || (ch &gt; 'Z')) &amp;&amp; ((ch &lt; 'a') || (ch &gt; 'z'))</span>
+                    &amp;&amp; ((ch &lt; '0') || (ch &gt; '9')) &amp;&amp; (ch != '_') &amp;&amp; (ch != '.')
+                    &amp;&amp; (ch != ':') &amp;&amp; (ch != '-') &amp;&amp; (ch &lt;= '\u007E')) {
+<span class="fc" id="L1793">                this.unreadChar(ch);</span>
+<span class="fc" id="L1794">                return;</span>
+            }
+<span class="fc" id="L1796">            result.append(ch);</span>
+<span class="fc" id="L1797">        }</span>
+    }
+
+    /**
+     * This method scans an identifier from the current reader.
+     *
+     * @return the next character following the whitespace.
+     */
+    protected char scanWhitespace() throws IOException {
+        for (;;) {
+<span class="fc" id="L1807">            char ch = this.readChar();</span>
+<span class="fc bfc" id="L1808" title="All 2 branches covered.">            switch (ch) {</span>
+                case ' ':
+                case '\t':
+                case '\n':
+                case '\r':
+<span class="fc" id="L1813">                    break;</span>
+                default:
+<span class="fc" id="L1815">                    return ch;</span>
+            }
+<span class="fc" id="L1817">        }</span>
+    }
+
+    /**
+     * This method scans an identifier from the current reader.
+     * The scanned whitespace is appended to &lt;code&gt;result&lt;/code&gt;.
+     *
+     * @return the next character following the whitespace.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;result != null&lt;/code&gt;
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     */
+    protected char scanWhitespace(StringBuilder buf) throws IOException {
+        for (;;) {
+<span class="fc" id="L1832">            char ch = this.readChar();</span>
+<span class="pc bpc" id="L1833" title="1 of 3 branches missed.">            switch (ch) {</span>
+                case ' ':
+                case '\t':
+                case '\n':
+<span class="fc" id="L1837">                    buf.append(ch);</span>
+<span class="fc" id="L1838">                    break;</span>
+                case '\r':
+<span class="nc" id="L1840">                    break;</span>
+                default:
+<span class="fc" id="L1842">                    return ch;</span>
+            }
+<span class="fc" id="L1844">        }</span>
+    }
+
+    /**
+     * This method scans a delimited string from the current reader.
+     * The scanned string without delimiters is appended to
+     * &lt;code&gt;string&lt;/code&gt;.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;string != null&lt;/code&gt;
+     *     &lt;li&gt;the next char read is the string delimiter
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     */
+    protected void scanString(StringBuilder buf) throws IOException {
+<span class="fc" id="L1858">        char delimiter = this.readChar();</span>
+<span class="pc bpc" id="L1859" title="2 of 4 branches missed.">        if ((delimiter != '\'') &amp;&amp; (delimiter != '&quot;')) {</span>
+<span class="nc" id="L1860">            throw this.expectedInput(&quot;' or \&quot;&quot;);</span>
+        }
+        for (;;) {
+<span class="fc" id="L1863">            char ch = this.readChar();</span>
+<span class="fc bfc" id="L1864" title="All 2 branches covered.">            if (ch == delimiter) {</span>
+<span class="fc" id="L1865">                return;</span>
+<span class="fc bfc" id="L1866" title="All 2 branches covered.">            } else if (ch == '&amp;') {</span>
+<span class="fc" id="L1867">                this.resolveEntity(buf);</span>
+            } else {
+<span class="fc" id="L1869">                buf.append(ch);</span>
+            }
+<span class="fc" id="L1871">        }</span>
+    }
+
+    /**
+     * Scans a #PCDATA element. CDATA sections and entities are resolved.
+     * The next &amp;lt; char is skipped.
+     * The scanned data is appended to &lt;code&gt;data&lt;/code&gt;.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;data != null&lt;/code&gt;
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     */
+    protected void scanPCData(StringBuilder buf) throws IOException {
+        for (;;) {
+<span class="fc" id="L1885">            char ch = this.readChar();</span>
+<span class="fc bfc" id="L1886" title="All 2 branches covered.">            if (ch == '&lt;') {</span>
+<span class="fc" id="L1887">                ch = this.readChar();</span>
+<span class="pc bpc" id="L1888" title="1 of 2 branches missed.">                if (ch == '!') {</span>
+<span class="nc" id="L1889">                    this.checkCDATA(buf);</span>
+                } else {
+<span class="fc" id="L1891">                    this.unreadChar(ch);</span>
+<span class="fc" id="L1892">                    return;</span>
+                }
+<span class="fc bfc" id="L1894" title="All 2 branches covered.">            } else if (ch == '&amp;') {</span>
+<span class="fc" id="L1895">                this.resolveEntity(buf);</span>
+            } else {
+<span class="fc" id="L1897">                buf.append(ch);</span>
+            }
+<span class="fc" id="L1899">        }</span>
+    }
+
+    /**
+     * Scans a special tag and if the tag is a CDATA section, append its
+     * content to &lt;code&gt;buf&lt;/code&gt;.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;buf != null&lt;/code&gt;
+     *     &lt;li&gt;The first &amp;lt; has already been read.
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     */
+    protected boolean checkCDATA(StringBuilder buf) throws IOException {
+<span class="nc" id="L1912">        char ch = this.readChar();</span>
+<span class="nc bnc" id="L1913" title="All 2 branches missed.">        if (ch != '[') {</span>
+<span class="nc" id="L1914">            this.unreadChar(ch);</span>
+<span class="nc" id="L1915">            this.skipSpecialTag(0);</span>
+<span class="nc" id="L1916">            return false;</span>
+<span class="nc bnc" id="L1917" title="All 2 branches missed.">        } else if (!this.checkLiteral(&quot;CDATA[&quot;)) {</span>
+<span class="nc" id="L1918">            this.skipSpecialTag(1); // one [ has already been read</span>
+<span class="nc" id="L1919">            return false;</span>
+        } else {
+<span class="nc" id="L1921">            int delimiterCharsSkipped = 0;</span>
+<span class="nc bnc" id="L1922" title="All 2 branches missed.">            while (delimiterCharsSkipped &lt; 3) {</span>
+<span class="nc" id="L1923">                ch = this.readChar();</span>
+<span class="nc bnc" id="L1924" title="All 3 branches missed.">                switch (ch) {</span>
+                    case ']':
+<span class="nc bnc" id="L1926" title="All 2 branches missed.">                        if (delimiterCharsSkipped &lt; 2) {</span>
+<span class="nc" id="L1927">                            delimiterCharsSkipped += 1;</span>
+                        } else {
+<span class="nc" id="L1929">                            buf.append(']');</span>
+<span class="nc" id="L1930">                            buf.append(']');</span>
+<span class="nc" id="L1931">                            delimiterCharsSkipped = 0;</span>
+                        }
+<span class="nc" id="L1933">                        break;</span>
+                    case '&gt;':
+<span class="nc bnc" id="L1935" title="All 2 branches missed.">                        if (delimiterCharsSkipped &lt; 2) {</span>
+<span class="nc bnc" id="L1936" title="All 2 branches missed.">                            for (int i = 0; i &lt; delimiterCharsSkipped; i++) {</span>
+<span class="nc" id="L1937">                                buf.append(']');</span>
+                            }
+<span class="nc" id="L1939">                            delimiterCharsSkipped = 0;</span>
+<span class="nc" id="L1940">                            buf.append('&gt;');</span>
+                        } else {
+<span class="nc" id="L1942">                            delimiterCharsSkipped = 3;</span>
+                        }
+<span class="nc" id="L1944">                        break;</span>
+                    default:
+<span class="nc bnc" id="L1946" title="All 2 branches missed.">                        for (int i = 0; i &lt; delimiterCharsSkipped; i += 1) {</span>
+<span class="nc" id="L1947">                            buf.append(']');</span>
+                        }
+<span class="nc" id="L1949">                        buf.append(ch);</span>
+<span class="nc" id="L1950">                        delimiterCharsSkipped = 0;</span>
+                }
+            }
+<span class="nc" id="L1953">            return true;</span>
+        }
+    }
+
+    /**
+     * Skips a comment.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;The first &amp;lt;!-- has already been read.
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     */
+    protected void skipComment() throws IOException {
+<span class="fc" id="L1965">        int dashesToRead = 2;</span>
+<span class="fc bfc" id="L1966" title="All 2 branches covered.">        while (dashesToRead &gt; 0) {</span>
+<span class="fc" id="L1967">            char ch = this.readChar();</span>
+<span class="fc bfc" id="L1968" title="All 2 branches covered.">            if (ch == '-') {</span>
+<span class="fc" id="L1969">                dashesToRead -= 1;</span>
+            } else {
+<span class="fc" id="L1971">                dashesToRead = 2;</span>
+            }
+<span class="fc" id="L1973">        }</span>
+<span class="pc bpc" id="L1974" title="1 of 2 branches missed.">        if (this.readChar() != '&gt;') {</span>
+<span class="nc" id="L1975">            throw this.expectedInput(&quot;&gt;&quot;);</span>
+        }
+<span class="fc" id="L1977">    }</span>
+
+    /**
+     * Skips a special tag or comment.
+     *
+     * @param bracketLevel The number of open square brackets ([) that have
+     *                     already been read.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;The first &amp;lt;! has already been read.
+     *     &lt;li&gt;&lt;code&gt;bracketLevel &gt;= 0&lt;/code&gt;
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     */
+    protected void skipSpecialTag(int bracketLevel) throws IOException {
+<span class="fc" id="L1991">        int tagLevel = 1; // &lt;</span>
+<span class="fc" id="L1992">        char stringDelimiter = '\0';</span>
+<span class="pc bpc" id="L1993" title="1 of 2 branches missed.">        if (bracketLevel == 0) {</span>
+<span class="fc" id="L1994">            char ch = this.readChar();</span>
+<span class="pc bpc" id="L1995" title="1 of 2 branches missed.">            if (ch == '[') {</span>
+<span class="nc" id="L1996">                bracketLevel += 1;</span>
+<span class="fc bfc" id="L1997" title="All 2 branches covered.">            } else if (ch == '-') {</span>
+<span class="fc" id="L1998">                ch = this.readChar();</span>
+<span class="pc bpc" id="L1999" title="1 of 2 branches missed.">                if (ch == '[') {</span>
+<span class="nc" id="L2000">                    bracketLevel += 1;</span>
+<span class="pc bpc" id="L2001" title="1 of 2 branches missed.">                } else if (ch == ']') {</span>
+<span class="nc" id="L2002">                    bracketLevel -= 1;</span>
+<span class="pc bpc" id="L2003" title="1 of 2 branches missed.">                } else if (ch == '-') {</span>
+<span class="fc" id="L2004">                    this.skipComment();</span>
+<span class="fc" id="L2005">                    return;</span>
+                }
+            }
+        }
+<span class="fc bfc" id="L2009" title="All 2 branches covered.">        while (tagLevel &gt; 0) {</span>
+<span class="fc" id="L2010">            char ch = this.readChar();</span>
+<span class="fc bfc" id="L2011" title="All 2 branches covered.">            if (stringDelimiter == '\0') {</span>
+<span class="pc bpc" id="L2012" title="1 of 4 branches missed.">                if ((ch == '&quot;') || (ch == '\'')) {</span>
+<span class="fc" id="L2013">                    stringDelimiter = ch;</span>
+<span class="pc bpc" id="L2014" title="1 of 2 branches missed.">                } else if (bracketLevel &lt;= 0) {</span>
+<span class="pc bpc" id="L2015" title="1 of 2 branches missed.">                    if (ch == '&lt;') {</span>
+<span class="nc" id="L2016">                        tagLevel += 1;</span>
+<span class="fc bfc" id="L2017" title="All 2 branches covered.">                    } else if (ch == '&gt;') {</span>
+<span class="fc" id="L2018">                        tagLevel -= 1;</span>
+                    }
+                }
+<span class="pc bpc" id="L2021" title="1 of 2 branches missed.">                if (ch == '[') {</span>
+<span class="nc" id="L2022">                    bracketLevel += 1;</span>
+<span class="pc bpc" id="L2023" title="1 of 2 branches missed.">                } else if (ch == ']') {</span>
+<span class="nc" id="L2024">                    bracketLevel -= 1;</span>
+                }
+            } else {
+<span class="fc bfc" id="L2027" title="All 2 branches covered.">                if (ch == stringDelimiter) {</span>
+<span class="fc" id="L2028">                    stringDelimiter = '\0';</span>
+                }
+            }
+<span class="fc" id="L2031">        }</span>
+<span class="fc" id="L2032">    }</span>
+
+    /**
+     * Scans the data for literal text.
+     * Scanning stops when a character does not match or after the complete
+     * text has been checked, whichever comes first.
+     *
+     * @param literal the literal to check.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;literal != null&lt;/code&gt;
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     */
+    protected boolean checkLiteral(String literal) throws IOException {
+<span class="fc" id="L2046">        int length = literal.length();</span>
+<span class="fc bfc" id="L2047" title="All 2 branches covered.">        for (int i = 0; i &lt; length; i += 1) {</span>
+<span class="pc bpc" id="L2048" title="1 of 2 branches missed.">            if (this.readChar() != literal.charAt(i)) {</span>
+<span class="nc" id="L2049">                return false;</span>
+            }
+        }
+<span class="fc" id="L2052">        return true;</span>
+    }
+
+    /**
+     * Reads a character from a reader.
+     */
+    protected char readChar() throws IOException {
+<span class="fc bfc" id="L2059" title="All 2 branches covered.">        if (this.charReadTooMuch != '\0') {</span>
+<span class="fc" id="L2060">            char ch = this.charReadTooMuch;</span>
+<span class="fc" id="L2061">            this.charReadTooMuch = '\0';</span>
+<span class="fc" id="L2062">            return ch;</span>
+        } else {
+<span class="fc" id="L2064">            int i = this.reader.read();</span>
+<span class="fc bfc" id="L2065" title="All 2 branches covered.">            if (i &lt; 0) {</span>
+<span class="fc" id="L2066">                throw this.unexpectedEndOfData();</span>
+<span class="fc bfc" id="L2067" title="All 2 branches covered.">            } else if (i == 10) {</span>
+<span class="fc" id="L2068">                this.parserLineNr += 1;</span>
+<span class="fc" id="L2069">                return '\n';</span>
+            } else {
+<span class="fc" id="L2071">                return (char) i;</span>
+            }
+        }
+    }
+
+    /**
+     * Scans an XML element.
+     *
+     * @param elt The element that will contain the result.
+     * 
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;The first &amp;lt; has already been read.
+     *     &lt;li&gt;&lt;code&gt;elt != null&lt;/code&gt;
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     */
+    protected void scanElement(XmlElement elt)  throws IOException {
+<span class="fc" id="L2087">        StringBuilder buf = new StringBuilder();</span>
+<span class="fc" id="L2088">        this.scanIdentifier(buf);</span>
+<span class="fc" id="L2089">        String eltName = buf.toString();</span>
+<span class="fc" id="L2090">        elt.setName(eltName);</span>
+<span class="fc" id="L2091">        char ch = this.scanWhitespace();</span>
+<span class="fc bfc" id="L2092" title="All 4 branches covered.">        while ((ch != '&gt;') &amp;&amp; (ch != '/')) {</span>
+<span class="fc" id="L2093">            buf.setLength(0);</span>
+<span class="fc" id="L2094">            this.unreadChar(ch);</span>
+<span class="fc" id="L2095">            this.scanIdentifier(buf);</span>
+<span class="fc" id="L2096">            String key = buf.toString();</span>
+<span class="fc" id="L2097">            ch = this.scanWhitespace();</span>
+<span class="pc bpc" id="L2098" title="1 of 2 branches missed.">            if (ch != '=') {</span>
+<span class="nc" id="L2099">                throw this.expectedInput(&quot;=&quot;);</span>
+            }
+<span class="fc" id="L2101">            this.unreadChar(this.scanWhitespace());</span>
+<span class="fc" id="L2102">            buf.setLength(0);</span>
+<span class="fc" id="L2103">            this.scanString(buf);</span>
+<span class="fc" id="L2104">            elt.setAttribute(key, buf);</span>
+<span class="fc" id="L2105">            ch = this.scanWhitespace();</span>
+<span class="fc" id="L2106">        }</span>
+<span class="fc bfc" id="L2107" title="All 2 branches covered.">        if (ch == '/') {</span>
+<span class="fc" id="L2108">            ch = this.readChar();</span>
+<span class="pc bpc" id="L2109" title="1 of 2 branches missed.">            if (ch != '&gt;') {</span>
+<span class="nc" id="L2110">                throw this.expectedInput(&quot;&gt;&quot;);</span>
+            }
+<span class="fc" id="L2112">            return;</span>
+        }
+<span class="fc" id="L2114">        buf.setLength(0);</span>
+<span class="fc" id="L2115">        ch = this.scanWhitespace(buf);</span>
+<span class="fc bfc" id="L2116" title="All 2 branches covered.">        if (ch != '&lt;') {</span>
+<span class="fc" id="L2117">            this.unreadChar(ch);</span>
+<span class="fc" id="L2118">            this.scanPCData(buf);</span>
+        } else {
+            for (;;) {
+<span class="fc" id="L2121">                ch = this.readChar();</span>
+<span class="pc bpc" id="L2122" title="1 of 2 branches missed.">                if (ch == '!') {</span>
+<span class="nc bnc" id="L2123" title="All 2 branches missed.">                    if (this.checkCDATA(buf)) {</span>
+<span class="nc" id="L2124">                        this.scanPCData(buf);</span>
+<span class="nc" id="L2125">                        break;</span>
+                    } else {
+<span class="nc" id="L2127">                        ch = this.scanWhitespace(buf);</span>
+<span class="nc bnc" id="L2128" title="All 2 branches missed.">                        if (ch != '&lt;') {</span>
+<span class="nc" id="L2129">                            this.unreadChar(ch);</span>
+<span class="nc" id="L2130">                            this.scanPCData(buf);</span>
+<span class="nc" id="L2131">                            break;</span>
+                        }
+                    }
+                } else {
+<span class="pc bpc" id="L2135" title="1 of 4 branches missed.">                    if ((ch != '/') || this.ignoreWhitespace) {</span>
+<span class="fc" id="L2136">                        buf.setLength(0);</span>
+                    }
+<span class="fc bfc" id="L2138" title="All 2 branches covered.">                    if (ch == '/') {</span>
+<span class="fc" id="L2139">                        this.unreadChar(ch);</span>
+                    }
+                    break;
+                }
+            }
+        }
+<span class="fc bfc" id="L2145" title="All 2 branches covered.">        if (buf.length() == 0) {</span>
+<span class="fc bfc" id="L2146" title="All 2 branches covered.">            while (ch != '/') {</span>
+<span class="pc bpc" id="L2147" title="1 of 2 branches missed.">                if (ch == '!') {</span>
+<span class="nc" id="L2148">                    ch = this.readChar();</span>
+<span class="nc bnc" id="L2149" title="All 2 branches missed.">                    if (ch != '-') {</span>
+<span class="nc" id="L2150">                        throw this.expectedInput(&quot;Comment or Element&quot;);</span>
+                    }
+<span class="nc" id="L2152">                    ch = this.readChar();</span>
+<span class="nc bnc" id="L2153" title="All 2 branches missed.">                    if (ch != '-') {</span>
+<span class="nc" id="L2154">                        throw this.expectedInput(&quot;Comment or Element&quot;);</span>
+                    }
+<span class="nc" id="L2156">                    this.skipComment();</span>
+                } else {
+<span class="fc" id="L2158">                    this.unreadChar(ch);</span>
+<span class="fc" id="L2159">                    XmlElement child = this.createAnotherElement();</span>
+<span class="fc" id="L2160">                    this.scanElement(child);</span>
+<span class="fc" id="L2161">                    elt.addChild(child);</span>
+                }
+<span class="fc" id="L2163">                ch = this.scanWhitespace();</span>
+<span class="pc bpc" id="L2164" title="1 of 2 branches missed.">                if (ch != '&lt;') {</span>
+<span class="nc" id="L2165">                    throw this.expectedInput(&quot;&lt;&quot;);</span>
+                }
+<span class="fc" id="L2167">                ch = this.readChar();</span>
+            }
+<span class="fc" id="L2169">            this.unreadChar(ch);</span>
+        } else {
+<span class="pc bpc" id="L2171" title="1 of 2 branches missed.">            if (this.ignoreWhitespace) {</span>
+<span class="fc" id="L2172">                elt.setContent(buf.toString().trim());</span>
+            } else {
+<span class="nc" id="L2174">                elt.setContent(buf.toString());</span>
+            }
+        }
+<span class="fc" id="L2177">        ch = this.readChar();</span>
+<span class="pc bpc" id="L2178" title="1 of 2 branches missed.">        if (ch != '/') {</span>
+<span class="nc" id="L2179">            throw this.expectedInput(&quot;/&quot;);</span>
+        }
+<span class="fc" id="L2181">        this.unreadChar(this.scanWhitespace());</span>
+<span class="pc bpc" id="L2182" title="1 of 2 branches missed.">        if (!this.checkLiteral(eltName)) {</span>
+<span class="nc" id="L2183">            throw this.expectedInput(eltName);</span>
+        }
+<span class="pc bpc" id="L2185" title="1 of 2 branches missed.">        if (this.scanWhitespace() != '&gt;') {</span>
+<span class="nc" id="L2186">            throw this.expectedInput(&quot;&gt;&quot;);</span>
+        }
+<span class="fc" id="L2188">    }</span>
+
+    /**
+     * Resolves an entity. The name of the entity is read from the reader.
+     * The value of the entity is appended to &lt;code&gt;buf&lt;/code&gt;.
+     *
+     * @param buf Where to put the entity value.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;The first &amp;amp; has already been read.
+     *     &lt;li&gt;&lt;code&gt;buf != null&lt;/code&gt;
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     */
+    protected void resolveEntity(StringBuilder buf) throws IOException {
+<span class="fc" id="L2202">        char ch = '\0';</span>
+<span class="fc" id="L2203">        StringBuilder keyBuf = new StringBuilder();</span>
+        for (;;) {
+<span class="fc" id="L2205">            ch = this.readChar();</span>
+<span class="fc bfc" id="L2206" title="All 2 branches covered.">            if (ch == ';') {</span>
+<span class="fc" id="L2207">                break;</span>
+            }
+<span class="fc" id="L2209">            keyBuf.append(ch);</span>
+        }
+<span class="fc" id="L2211">        String key = keyBuf.toString();</span>
+<span class="pc bpc" id="L2212" title="1 of 2 branches missed.">        if (key.charAt(0) == '#') {</span>
+            try {
+<span class="nc bnc" id="L2214" title="All 2 branches missed.">                if (key.charAt(1) == 'x') {</span>
+<span class="nc" id="L2215">                    ch = (char) Integer.parseInt(key.substring(2), 16);</span>
+                } else {
+<span class="nc" id="L2217">                    ch = (char) Integer.parseInt(key.substring(1), 10);</span>
+                }
+<span class="nc" id="L2219">            } catch (NumberFormatException e) {</span>
+<span class="nc" id="L2220">                throw this.unknownEntity(key);</span>
+<span class="nc" id="L2221">            }</span>
+<span class="nc" id="L2222">            buf.append(ch);</span>
+        } else {
+<span class="fc" id="L2224">            char[] value = this.entities.get(key);</span>
+<span class="pc bpc" id="L2225" title="1 of 2 branches missed.">            if (value == null) {</span>
+<span class="nc" id="L2226">                throw this.unknownEntity(key);</span>
+            }
+<span class="fc" id="L2228">            buf.append(value);</span>
+        }
+<span class="fc" id="L2230">    }</span>
+
+    /**
+     * Pushes a character back to the read-back buffer.
+     *
+     * @param ch The character to push back.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;The read-back buffer is empty.
+     *     &lt;li&gt;&lt;code&gt;ch != '\0'&lt;/code&gt;
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     */
+    protected void unreadChar(char ch) {
+<span class="fc" id="L2243">        this.charReadTooMuch = ch;</span>
+<span class="fc" id="L2244">    }</span>
+
+    /**
+     * Creates a parse exception for when an invalid valueset is given to
+     * a method.
+     *
+     * @param name The name of the entity.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;name != null&lt;/code&gt;
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     */
+    protected XmlParseException invalidValueSet(String name) {
+<span class="nc" id="L2257">        String msg = &quot;Invalid value set (entity name = \&quot;&quot; + name + &quot;\&quot;)&quot;;</span>
+<span class="nc" id="L2258">        return new XmlParseException(this.getName(), this.parserLineNr, msg);</span>
+    }
+
+    /**
+     * Creates a parse exception for when an invalid value is given to a
+     * method.
+     *
+     * @param name  The name of the entity.
+     * @param value The value of the entity.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;name != null&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;value != null&lt;/code&gt;
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     */
+    protected XmlParseException invalidValue(String name, String value) {
+<span class="fc" id="L2274">        String msg = &quot;Attribute \&quot;&quot; + name + &quot;\&quot; does not contain a valid &quot;</span>
+                + &quot;value (\&quot;&quot; + value + &quot;\&quot;)&quot;;
+<span class="fc" id="L2276">        return new XmlParseException(this.getName(), this.parserLineNr, msg);</span>
+    }
+
+    /**
+     * Creates a parse exception for when the end of the data input has been
+     * reached.
+     */
+    protected XmlParseException unexpectedEndOfData() {
+<span class="fc" id="L2284">        String msg = &quot;Unexpected end of data reached&quot;;</span>
+<span class="fc" id="L2285">        return new XmlParseException(this.getName(), this.parserLineNr, msg);</span>
+    }
+
+    /**
+     * Creates a parse exception for when a syntax error occured.
+     *
+     * @param context The context in which the error occured.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;context != null&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;context.length() &amp;gt; 0&lt;/code&gt;
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     */
+    protected XmlParseException syntaxError(String context) {
+<span class="nc" id="L2299">        String msg = &quot;Syntax error while parsing &quot; + context;</span>
+<span class="nc" id="L2300">        return new XmlParseException(this.getName(), this.parserLineNr, msg);</span>
+    }
+
+    /**
+     * Creates a parse exception for when the next character read is not
+     * the character that was expected.
+     *
+     * @param charSet The set of characters (in human readable form) that was
+     *                expected.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;charSet != null&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;charSet.length() &amp;gt; 0&lt;/code&gt;
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     */
+    protected XmlParseException expectedInput(String charSet) {
+<span class="fc" id="L2316">        String msg = &quot;Expected: &quot; + charSet;</span>
+<span class="fc" id="L2317">        return new XmlParseException(this.getName(), this.parserLineNr, msg);</span>
+    }
+
+    /**
+     * Creates a parse exception for when an entity could not be resolved.
+     *
+     * @param name The name of the entity.
+     *
+     * &lt;/dl&gt;&lt;dl&gt;&lt;dt&gt;&lt;b&gt;Preconditions:&lt;/b&gt;&lt;/dt&gt;&lt;dd&gt;
+     * &lt;ul&gt;&lt;li&gt;&lt;code&gt;name != null&lt;/code&gt;
+     *     &lt;li&gt;&lt;code&gt;name.length() &amp;gt; 0&lt;/code&gt;
+     * &lt;/ul&gt;&lt;/dd&gt;&lt;/dl&gt;
+     */
+    protected XmlParseException unknownEntity(String name) {
+<span class="nc" id="L2331">        String msg = &quot;Unknown or invalid entity: &amp;&quot; + name + &quot;;&quot;;</span>
+<span class="nc" id="L2332">        return new XmlParseException(this.getName(), this.parserLineNr, msg);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.15.202606040825</span></div></body></html>
