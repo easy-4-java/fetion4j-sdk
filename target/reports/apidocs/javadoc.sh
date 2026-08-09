@@ -1,1 +1,0 @@
-/opt/homebrew/Cellar/openjdk/26.0.1/libexec/openjdk.jdk/Contents/Home/bin/javadoc -J-Duser.language= -J-Duser.country= @options @packages
