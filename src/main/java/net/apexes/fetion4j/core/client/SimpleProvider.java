@@ -28,7 +28,7 @@ import net.apexes.fetion4j.core.util.XmlElementHelper;
  * {@link NotifyListener} to persist system-config and user-info changes
  * to local XML files.
  *
- * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  * @see net.apexes.fetion4j.core.Provider
  * @see net.apexes.fetion4j.core.NotifyListener

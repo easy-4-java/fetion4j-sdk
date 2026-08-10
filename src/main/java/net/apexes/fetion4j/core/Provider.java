@@ -12,7 +12,7 @@ import net.apexes.fetion4j.core.util.XmlElement;
  * Abstraction for reading cached system configuration and user information.
  * Implementations may persist data to the file system or a database.
  *
- * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  * @see net.apexes.fetion4j.core.ProviderFactory
  * @see net.apexes.fetion4j.core.SystemConfig

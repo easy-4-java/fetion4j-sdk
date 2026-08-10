@@ -21,7 +21,7 @@ import net.apexes.fetion4j.core.sipc.SipcMessageWriter;
  * SIPC server and reads/writes {@link SipcMessage} objects via
  * {@link SipcMessageReader} and {@link SipcMessageWriter}.
  *
- * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  * @see net.apexes.fetion4j.core.client.transfer.Transfer
  * @see net.apexes.fetion4j.core.sipc.SipcMessageReader

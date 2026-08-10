@@ -11,7 +11,7 @@ package net.apexes.fetion4j.core;
  * authentication. Implementations present the captcha to the user and
  * use the supplied {@link AuthFeedback} to submit or cancel.
  *
- * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  * @see net.apexes.fetion4j.core.AuthFeedback
  * @see net.apexes.fetion4j.core.Captcha

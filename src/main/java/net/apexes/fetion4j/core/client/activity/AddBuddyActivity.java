@@ -24,7 +24,7 @@ import net.apexes.fetion4j.core.util.XmlElement;
  * SIPC activity for adding a buddy by mobile number or Fetion user ID.
  * Handles the server response and updates the local contact list.
  *
- * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  * @see net.apexes.fetion4j.core.client.Activity
  * @see net.apexes.fetion4j.core.user.Buddy

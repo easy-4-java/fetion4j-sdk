@@ -10,7 +10,7 @@ package net.apexes.fetion4j.core.sipc;
  * Constants for the SIPC 4.0 protocol: field names, method names,
  * and status codes used throughout the Fetion SDK.
  *
- * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  * @see net.apexes.fetion4j.core.sipc.SipcMessage
  */

@@ -34,7 +34,7 @@ import net.apexes.fetion4j.core.util.XmlElement;
  * including system-config retrieval, user-info loading, SSI account creation
  * (with optional captcha), and SIPC session establishment.
  *
- * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  * @see net.apexes.fetion4j.core.FetionConsole
  * @see net.apexes.fetion4j.core.client.FetionContext

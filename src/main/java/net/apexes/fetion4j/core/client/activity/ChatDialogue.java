@@ -23,7 +23,7 @@ import net.apexes.fetion4j.core.util.XmlElement;
  * SIPC dialogue for sending instant messages and SMS to a specific buddy.
  * Automatically selects SMS delivery when the buddy's URI is mobile-based.
  *
- * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  * @see net.apexes.fetion4j.core.client.Dialogue
  * @see net.apexes.fetion4j.core.user.Buddy

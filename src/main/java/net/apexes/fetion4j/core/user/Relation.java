@@ -9,7 +9,7 @@ package net.apexes.fetion4j.core.user;
 /**
  * Enumeration of buddy relationship statuses used in the Fetion contact list.
  *
- * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  * @see net.apexes.fetion4j.core.user.Buddy
  */

@@ -17,7 +17,7 @@ import net.apexes.fetion4j.core.util.ConvertHelper;
  * digest strings in the format:
  * <pre>Digest algorithm="SHA1-sess-v4",nonce="1D3C",key="C3C7",signature="84E8"</pre>
  *
- * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  * @see net.apexes.fetion4j.core.client.auth.AuthGeneratorV4
  * @see net.apexes.fetion4j.core.client.auth.PasswordEncrypterV4

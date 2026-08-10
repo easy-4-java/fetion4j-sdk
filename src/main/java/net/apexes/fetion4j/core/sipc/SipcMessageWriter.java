@@ -14,7 +14,7 @@ import java.io.OutputStream;
  * Writes SIPC messages to an {@link java.io.OutputStream} in the
  * standard SIPC wire format.
  *
- * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  * @see net.apexes.fetion4j.core.sipc.SipcMessageReader
  * @see net.apexes.fetion4j.core.sipc.SipcMessage

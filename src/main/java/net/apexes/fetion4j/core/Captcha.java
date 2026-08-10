@@ -11,7 +11,7 @@ package net.apexes.fetion4j.core;
  * Provides access to the captcha image data, verification algorithm, and
  * related metadata.
  *
- * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  * @see net.apexes.fetion4j.core.AuthFeedback
  */

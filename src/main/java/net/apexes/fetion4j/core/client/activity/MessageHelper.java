@@ -21,7 +21,7 @@ import net.apexes.fetion4j.core.user.BuddyGroup;
  * Factory for creating SIPC request messages used in login, logout,
  * keep-alive, buddy management, and messaging operations.
  *
- * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  * @see net.apexes.fetion4j.core.sipc.RequestMessage
  * @see net.apexes.fetion4j.core.sipc.Sipc

@@ -12,7 +12,7 @@ import net.apexes.fetion4j.core.Captcha;
  * Default implementation of the {@link Captcha} interface, holding captcha
  * image data, verification algorithm details, and the user-entered code.
  *
- * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  * @see net.apexes.fetion4j.core.Captcha
  * @see net.apexes.fetion4j.core.client.AuthFeedbackImpl

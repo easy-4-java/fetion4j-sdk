@@ -17,7 +17,7 @@ import net.apexes.fetion4j.core.util.XmlElement;
  * user-model objects ({@link User}, {@link Buddy}, etc.) using getter/setter
  * introspection.
  *
- * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  * @see net.apexes.fetion4j.core.user.User
  * @see net.apexes.fetion4j.core.util.XmlElement

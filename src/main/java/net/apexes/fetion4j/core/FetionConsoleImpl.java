@@ -15,7 +15,7 @@ import net.apexes.fetion4j.core.user.Buddy;
  * Default implementation of {@link FetionConsole} that delegates buddy and
  * messaging operations to the underlying {@link Controller}.
  *
- * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  * @see net.apexes.fetion4j.core.FetionConsole
  * @see net.apexes.fetion4j.core.client.Controller

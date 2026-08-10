@@ -12,7 +12,7 @@ import net.apexes.fetion4j.core.sipc.SipcMessage;
  * Abstract base class for SIPC dialogues that can receive incoming messages.
  * Extends {@link Activity} with a message-reception hook.
  *
- * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  * @see net.apexes.fetion4j.core.client.Activity
  * @see net.apexes.fetion4j.core.sipc.SipcMessage

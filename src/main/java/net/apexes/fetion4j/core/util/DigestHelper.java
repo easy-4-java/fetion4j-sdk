@@ -16,7 +16,7 @@ import javax.crypto.SecretKey;
  * Cryptographic digest utility providing MD5, SHA-1 hashing and AES-256
  * key generation for the Fetion authentication protocol.
  *
- * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  * @see net.apexes.fetion4j.core.client.auth.PasswordEncrypterV4
  */

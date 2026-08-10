@@ -32,7 +32,7 @@ import java.security.InvalidParameterException;
  * 
  *  This class was 
  * @author Apache Software Foundation commons codec (http://commons.apache.org/codec/)
- * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  * @author <a href="http://mina.apache.org">Apache MINA Project</a>
  */

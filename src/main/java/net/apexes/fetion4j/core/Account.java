@@ -16,7 +16,7 @@ import net.apexes.fetion4j.core.util.DigestHelper;
  * user ID, mobile number, SIP URI, password, presence state and AES
  * credentials used for credential decryption.
  *
- * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  * @see net.apexes.fetion4j.core.UserInfo
  * @see net.apexes.fetion4j.core.user.Presence

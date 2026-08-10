@@ -15,7 +15,7 @@ import net.apexes.fetion4j.core.sipc.SipcMessage;
  * Abstraction for the underlying network transport used to exchange SIPC
  * messages with the server.
  *
- * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  * @see net.apexes.fetion4j.core.client.transfer.TcpTransfer
  * @see net.apexes.fetion4j.core.sipc.SipcMessage

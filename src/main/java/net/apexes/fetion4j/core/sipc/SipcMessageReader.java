@@ -16,7 +16,7 @@ import java.text.ParseException;
  * constructing either {@link RequestMessage} or {@link ResponseMessage}
  * objects depending on the headline format.
  *
- * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  * @see net.apexes.fetion4j.core.sipc.SipcMessageWriter
  * @see net.apexes.fetion4j.core.sipc.SipcMessage

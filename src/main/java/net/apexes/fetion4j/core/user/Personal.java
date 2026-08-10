@@ -12,7 +12,7 @@ package net.apexes.fetion4j.core.user;
  * nickname, impresa (signature), carrier info, SMS online status, and
  * current presence state.
  *
- * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  * @see net.apexes.fetion4j.core.user.User
  * @see net.apexes.fetion4j.core.user.Presence

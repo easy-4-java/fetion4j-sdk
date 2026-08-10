@@ -20,7 +20,7 @@ import net.apexes.fetion4j.core.sipc.SipcMessage;
  * Runs dedicated sender and receiver threads, matching each response
  * to its originating request via a composite key.
  *
- * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  * @see net.apexes.fetion4j.core.client.ClientHelper
  * @see net.apexes.fetion4j.core.sipc.ResponseMessage

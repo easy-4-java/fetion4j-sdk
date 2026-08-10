@@ -20,7 +20,7 @@ import net.apexes.fetion4j.core.util.XmlElementHelper;
  * Tracks version numbers for each configuration section and supports
  * incremental updates.
  *
- * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  * @see net.apexes.fetion4j.core.util.XmlElement
  * @see net.apexes.fetion4j.core.util.XmlElementHelper

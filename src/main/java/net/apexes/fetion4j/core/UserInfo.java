@@ -25,7 +25,7 @@ import net.apexes.fetion4j.core.util.XmlElementHelper;
  * groups, buddies, blacklist), and SMS quota. Supports incremental updates
  * triggered by server events.
  *
- * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  * @see net.apexes.fetion4j.core.user.Personal
  * @see net.apexes.fetion4j.core.user.Contact

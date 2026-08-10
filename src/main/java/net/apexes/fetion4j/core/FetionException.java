@@ -10,7 +10,7 @@ package net.apexes.fetion4j.core;
  * Base checked exception for all Fetion SDK errors. Carries an optional
  * cause chain for diagnostic purposes.
  *
- * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  * @see net.apexes.fetion4j.core.client.transfer.TransferException
  */

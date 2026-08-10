@@ -11,7 +11,7 @@ package net.apexes.fetion4j.core;
  * carrying an HTTP-style status code, status message, success/failure type,
  * and a human-readable description.
  *
- * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  * @see net.apexes.fetion4j.core.Result.Type
  */

@@ -16,7 +16,7 @@ import net.apexes.fetion4j.core.util.DigestHelper;
  * Password encryption utility for the Fetion V4 protocol. Produces SHA-1
  * hashes of the password combined with the Fetion domain or user ID.
  *
- * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  * @see net.apexes.fetion4j.core.util.DigestHelper
  */

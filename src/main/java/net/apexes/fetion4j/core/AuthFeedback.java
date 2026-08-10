@@ -12,7 +12,7 @@ import java.io.IOException;
  * Callback interface for authentication feedback, allowing callers to submit
  * a captcha code, cancel the operation, or request a new captcha image.
  *
- * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  * @see net.apexes.fetion4j.core.Captcha
  * @see net.apexes.fetion4j.core.AuthSupportable

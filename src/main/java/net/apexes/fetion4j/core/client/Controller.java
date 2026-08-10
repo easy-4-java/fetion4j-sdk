@@ -39,7 +39,7 @@ import net.apexes.fetion4j.core.util.XmlElement;
  * the TCP transfer layer, message dispatching, dialogue registration, and
  * notification listener dispatch.
  *
- * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  * @see net.apexes.fetion4j.core.client.Dispatcher
  * @see net.apexes.fetion4j.core.client.transfer.Transfer

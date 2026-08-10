@@ -12,7 +12,7 @@ package net.apexes.fetion4j.core.sipc;
  * acceptor (destination host) and method, and produces a headline in the
  * format {@code METHOD acceptor SIP-C/4.0}.
  *
- * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  * @see net.apexes.fetion4j.core.sipc.SipcMessage
  * @see net.apexes.fetion4j.core.sipc.ResponseMessage

@@ -23,7 +23,7 @@ import java.net.URLEncoder;
  * General-purpose string utility: HTML escaping/unescaping, tag stripping,
  * positional formatting, URL encoding, Base64 decoding, and case manipulation.
  *
- * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  * @see net.apexes.fetion4j.core.util.Base64
  */

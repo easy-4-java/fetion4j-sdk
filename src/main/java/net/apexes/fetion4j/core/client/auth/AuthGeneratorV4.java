@@ -28,7 +28,7 @@ import net.apexes.fetion4j.core.util.DigestHelper;
  * Combines the encrypted password, server nonce, and AES key into a single
  * payload encrypted with the server's RSA public key.
  *
- * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  * @see net.apexes.fetion4j.core.client.auth.AuthDigest
  * @see net.apexes.fetion4j.core.util.ConvertHelper

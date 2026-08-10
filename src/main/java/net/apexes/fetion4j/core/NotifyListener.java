@@ -14,7 +14,7 @@ import net.apexes.fetion4j.core.util.XmlElement;
  * Listener interface for asynchronous server-side events such as login
  * completion, buddy changes, presence updates and SMS count notifications.
  *
- * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  * @see net.apexes.fetion4j.core.client.Controller
  * @see net.apexes.fetion4j.core.user.Buddy

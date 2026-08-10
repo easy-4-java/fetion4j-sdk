@@ -15,7 +15,7 @@ import java.util.List;
  * call-id, sequence number, body content, and serialisation to the
  * SIPC wire format.
  *
- * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  * @see net.apexes.fetion4j.core.sipc.RequestMessage
  * @see net.apexes.fetion4j.core.sipc.ResponseMessage

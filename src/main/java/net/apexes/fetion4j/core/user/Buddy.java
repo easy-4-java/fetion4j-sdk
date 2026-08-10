@@ -10,7 +10,7 @@ package net.apexes.fetion4j.core.user;
  * Represents a buddy (friend) in the Fetion contact list, extending
  * {@link Personal} with a {@link Relation} status.
  *
- * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  * @see net.apexes.fetion4j.core.user.Personal
  * @see net.apexes.fetion4j.core.user.Relation

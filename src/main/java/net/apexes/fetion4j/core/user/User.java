@@ -10,7 +10,7 @@ package net.apexes.fetion4j.core.user;
  * Base model class representing a Fetion user, identified by a numeric
  * user ID, a SIP URI, and a display name. Implements equality based on userId.
  *
- * @author <a href="https://github.com/loong10k">@Loong Wan</a>
+ * @author <a href="https://github.com/loong10k">Loong Wan</a>
  * @since 3.0.0
  * @see net.apexes.fetion4j.core.user.Personal
  * @see net.apexes.fetion4j.core.user.Buddy
