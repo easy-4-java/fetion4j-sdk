@@ -54,7 +54,6 @@ public class AuthGeneratorV4 {
         return null;
     }
 
-    /** */
     /**
      * Basic decrypt method
      * @return byte[]
